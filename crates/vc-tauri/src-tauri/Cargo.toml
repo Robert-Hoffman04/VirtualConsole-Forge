@@ -1,0 +1,17 @@
+[package]
+name = "vc-tauri"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Tauri GUI shell over vc-core. Thin — collects inputs, calls vc_core::wad::build_wad, shows progress."
+
+build = "build.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+vc-core = { path = "../../vc-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tauri = { version = "2", features = [] }

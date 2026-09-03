@@ -1,0 +1,26 @@
+[
+  {
+    "system": "NES",
+    "id": "nes",
+    "dol_path": "nes.dol",
+    "valid_extensions": ["nes"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "A": "wiimote_2",
+          "B": "wiimote_1",
+          "Start": "wiimote_plus",
+          "Select": "wiimote_minus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58
+  }
+]

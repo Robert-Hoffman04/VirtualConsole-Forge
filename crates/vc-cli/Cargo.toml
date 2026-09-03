@@ -1,0 +1,10 @@
+[package]
+name = "vc-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "CLI wrapper over vc-core. Validation harness for the WAD packer — script it against test ROMs and diff output against known-good reference WADs."
+
+[dependencies]
+vc-core = { path = "../vc-core" }
+clap = { workspace = true }

@@ -1,0 +1,8 @@
+/target/
+crates/*/target/
+crates/vc-tauri/src-tauri/target/
+node_modules/
+dist/
+*.wad
+cores/*.dol
+.DS_Store

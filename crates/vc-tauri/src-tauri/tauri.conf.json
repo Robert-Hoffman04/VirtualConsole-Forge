@@ -1,0 +1,22 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "VirtualConsole-Forge",
+  "version": "0.1.0",
+  "identifier": "dev.forge.virtualconsole",
+  "build": {
+    "frontendDist": "../src"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "VirtualConsole-Forge",
+        "width": 960,
+        "height": 640
+      }
+    ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}
