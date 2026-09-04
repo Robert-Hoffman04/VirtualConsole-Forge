@@ -1,17 +1,900 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>VirtualConsole-Forge</title>
-  </head>
-  <body>
-    <h1>VirtualConsole-Forge</h1>
-    <p>
-      Placeholder shell. Real UI (core picker, ROM drop target, controller
-      mapping screen, cover art / title, build progress) not yet built —
-      wire it up against the <code>list_cores</code> and
-      <code>build_wad_command</code> Tauri commands in
-      <code>src-tauri/src/commands.rs</code>.
-    </p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VirtualConsole-Forge</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1318;
+      --sidebar: #11161c;
+      --panel: #171d24;
+      --panel-2: #1b222b;
+      --panel-3: #202933;
+      --border: #2a333e;
+      --text: #edf2f7;
+      --muted: #8f9baa;
+      --subtle: #65717f;
+      --accent: #4b8cff;
+      --accent-strong: #2f6fe0;
+      --success: #4cc38a;
+      --warning: #e8b45c;
+      --danger: #e56a6a;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; }
+    body {
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font: 13px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+
+    .app { display: flex; width: 100%; height: 100%; }
+    .sidebar {
+      width: 218px;
+      flex: 0 0 218px;
+      display: flex;
+      flex-direction: column;
+      padding: 18px 14px;
+      background: var(--sidebar);
+      border-right: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      gap: 11px;
+      align-items: center;
+      padding: 4px 7px 22px;
+    }
+    .brand-mark {
+      width: 32px; height: 32px;
+      display: grid; place-items: center;
+      border: 1px solid #3b4652;
+      border-radius: 8px;
+      background: #1b232c;
+      color: #aeb9c6;
+    }
+    .brand-name { font-weight: 700; letter-spacing: -.01em; }
+    .brand-subtitle { margin-top: 1px; color: var(--subtle); font-size: 10px; }
+    .nav { display: grid; gap: 4px; }
+    .nav button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 11px;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      background: transparent;
+      color: #aeb8c4;
+      text-align: left;
+      cursor: pointer;
+    }
+    .nav button:hover { background: #171d24; color: var(--text); }
+    .nav button.active {
+      background: #1d2d45;
+      border-color: #2c4d78;
+      color: #fff;
+    }
+    .nav-icon { width: 17px; text-align: center; color: #94a2b2; }
+    .nav button.active .nav-icon { color: #8bb7ff; }
+    .sidebar-status {
+      margin-top: auto;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #151b21;
+    }
+    .status-line { display: flex; align-items: center; gap: 8px; color: #b7c1cb; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); }
+    .status-value { margin-top: 5px; color: #fff; font-size: 18px; font-weight: 650; }
+    .status-caption { color: var(--subtle); font-size: 11px; }
+
+    .main { min-width: 0; flex: 1; display: flex; flex-direction: column; }
+    .topbar {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+      background: #12171d;
+    }
+    .page-title { font-size: 14px; font-weight: 650; }
+    .page-description { color: var(--muted); font-size: 11px; }
+    .top-actions { display: flex; gap: 8px; }
+
+    .content { min-height: 0; flex: 1; overflow: auto; padding: 26px; }
+    .view { display: none; max-width: 1180px; margin: 0 auto; }
+    .view.active { display: block; }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      margin-bottom: 25px;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--subtle);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .step.current { color: #dfe7f0; }
+    .step.complete { color: #b9c7d5; }
+    .step-number {
+      width: 25px; height: 25px;
+      display: grid; place-items: center;
+      border-radius: 50%;
+      border: 1px solid #394552;
+      background: #171e26;
+      font-size: 11px;
+    }
+    .step.current .step-number {
+      border-color: var(--accent);
+      background: var(--accent-strong);
+      color: #fff;
+    }
+    .step.complete .step-number {
+      border-color: #39785e;
+      background: #193729;
+      color: #8ce1b6;
+    }
+    .step-line { height: 1px; flex: 1; min-width: 35px; margin: 0 13px; background: #2b343f; }
+
+    .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; }
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 8px 30px rgba(0,0,0,.13);
+    }
+    .panel-header { padding: 18px 20px 13px; border-bottom: 1px solid var(--border); }
+    .panel-title { font-weight: 650; font-size: 14px; }
+    .panel-description { margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .panel-body { padding: 19px 20px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label {
+      display: flex; justify-content: space-between; gap: 8px;
+      margin-bottom: 7px; color: #c3ccd6; font-size: 11px; font-weight: 600;
+    }
+    .hint { color: var(--subtle); font-weight: 400; }
+    input, select {
+      width: 100%;
+      height: 37px;
+      padding: 0 11px;
+      border: 1px solid #303b47;
+      border-radius: 7px;
+      outline: none;
+      background: #11171d;
+      color: var(--text);
+    }
+    input:focus, select:focus { border-color: #477fcf; box-shadow: 0 0 0 2px rgba(75,140,255,.12); }
+    .dropzone {
+      min-height: 92px;
+      display: grid; place-items: center;
+      padding: 15px;
+      border: 1px dashed #3b4754;
+      border-radius: 8px;
+      background: #12181f;
+      text-align: center;
+      cursor: pointer;
+    }
+    .dropzone:hover, .dropzone.dragging { border-color: #4c7fc4; background: #151d26; }
+    .drop-icon { color: #8190a0; font-size: 22px; margin-bottom: 4px; }
+    .drop-title { color: #d3dbe4; font-weight: 600; }
+    .drop-subtitle { color: var(--subtle); font-size: 11px; }
+    .file-name { margin-top: 7px; color: #8fbaff; font-size: 11px; }
+    .inline { display: flex; gap: 8px; }
+    .inline > *:first-child { flex: 1; }
+    .button {
+      height: 37px;
+      padding: 0 13px;
+      border: 1px solid #34404c;
+      border-radius: 7px;
+      background: #1a222b;
+      color: #d9e1e9;
+      cursor: pointer;
+    }
+    .button:hover { background: #222c36; }
+    .button.primary { border-color: #3c75c9; background: var(--accent-strong); color: #fff; }
+    .button.primary:hover { background: #3a7bea; }
+    .button.ghost { background: transparent; border-color: transparent; }
+    .button.danger { border-color: #633939; color: #f0a4a4; }
+
+    .validation {
+      display: flex; align-items: center; gap: 9px;
+      padding: 10px 11px; margin-top: 14px;
+      border: 1px solid #28533f; border-radius: 7px;
+      background: #14261e; color: #9ad9b7; font-size: 11px;
+    }
+    .validation.warning { border-color: #5e4d2e; background: #292216; color: #e8c986; }
+    .validation.error { border-color: #633939; background: #2a1919; color: #efa2a2; }
+
+    .preview-card { padding: 17px; }
+    .device-preview {
+      position: relative;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      border: 1px solid #d7dbe0;
+      border-radius: 23px;
+      background: linear-gradient(150deg, #e9edf1, #bfc6ce);
+      box-shadow: 0 12px 35px rgba(0,0,0,.34);
+    }
+    .device-screen {
+      position: absolute; inset: 10% 8% 25%;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.85);
+      border-radius: 8px;
+      background: #dfe5e9;
+    }
+    .menu-header { height: 19%; padding: 7px 12px; color: #68737c; font-size: 10px; display: flex; justify-content: space-between; }
+    .channel-stage { height: 81%; display: grid; place-items: center; padding: 8px 12%; }
+    .channel-tile {
+      width: min(100%, 245px);
+      aspect-ratio: 1.28;
+      overflow: hidden;
+      position: relative;
+      border: 4px solid #eef2f5;
+      border-radius: 12px;
+      background: #1f2933;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+    .channel-art {
+      position: absolute; inset: 0;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, #365d8c, #5f88b6);
+      background-size: cover; background-position: center;
+    }
+    .channel-art.placeholder::after {
+      content: "COVER ART";
+      color: rgba(255,255,255,.72);
+      font-size: 13px; font-weight: 700; letter-spacing: .08em;
+    }
+    .channel-title {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      padding: 13px 9px 7px;
+      background: linear-gradient(transparent, rgba(0,0,0,.78));
+      color: white; font-size: 11px; font-weight: 700;
+      text-shadow: 0 1px 2px #000;
+    }
+    .device-footer {
+      position: absolute; left: 0; right: 0; bottom: 5%;
+      display: flex; justify-content: space-between; padding: 0 11%;
+      color: #68727b; font-size: 10px;
+    }
+    .preview-caption { margin-top: 11px; color: var(--muted); font-size: 10px; }
+    .side-section { margin-top: 18px; }
+    .side-section:first-child { margin-top: 0; }
+    .side-heading { margin-bottom: 8px; color: #c7d0da; font-size: 11px; font-weight: 650; }
+    .summary-row { display: flex; justify-content: space-between; gap: 14px; padding: 7px 0; border-bottom: 1px solid #252e38; }
+    .summary-row:last-child { border-bottom: 0; }
+    .summary-label { color: var(--muted); }
+    .summary-value { color: #e4eaf0; text-align: right; max-width: 60%; overflow-wrap: anywhere; }
+
+    .controller {
+      display: grid; grid-template-columns: 1fr 220px 1fr; gap: 18px; align-items: center;
+    }
+    .mapping-list { display: grid; gap: 8px; }
+    .mapping-row { display: grid; grid-template-columns: 1fr 105px; gap: 8px; align-items: center; }
+    .mapping-label { color: #b9c3ce; }
+    .controller-visual {
+      height: 250px; display: grid; place-items: center;
+      border: 1px solid var(--border); border-radius: 10px; background: #12181e;
+    }
+    .gamepad {
+      width: 180px; height: 96px; position: relative;
+      border: 2px solid #66717d; border-radius: 40px;
+      background: #252e37;
+      box-shadow: inset 0 -10px 20px rgba(0,0,0,.2);
+    }
+    .stick { position: absolute; width: 25px; height: 25px; border: 2px solid #717d89; border-radius: 50%; background: #303a44; top: 35px; }
+    .stick.left { left: 45px; } .stick.right { right: 45px; }
+    .buttons { position: absolute; right: 17px; top: 25px; display: grid; grid-template-columns: 18px 18px; gap: 5px; }
+    .button-dot { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: #56626f; color: #cbd3dc; font-size: 8px; }
+    .controller-note { color: var(--subtle); text-align: center; font-size: 10px; margin-top: 8px; }
+
+    .build-summary { display: grid; grid-template-columns: 1fr 290px; gap: 18px; }
+    .checklist { display: grid; gap: 1px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .check-row { display: flex; justify-content: space-between; padding: 12px 14px; background: #141a20; }
+    .check-row:nth-child(even) { background: #171e25; }
+    .check-name { color: var(--muted); } .check-value { max-width: 62%; text-align: right; overflow-wrap: anywhere; }
+    .check { color: var(--success); }
+    .build-action { display: flex; flex-direction: column; justify-content: space-between; }
+    .build-button { width: 100%; height: 46px; margin-top: 18px; font-size: 13px; font-weight: 650; }
+
+    .title-id-layout { max-width: 760px; }
+    .id-result { margin-top: 18px; padding: 18px; border-radius: 9px; border: 1px solid var(--border); background: var(--panel); }
+    .id-result.available { border-color: #28533f; background: #14261e; }
+    .id-result.used { border-color: #633939; background: #2a1919; }
+    .id-state { font-size: 14px; font-weight: 650; }
+    .id-detail { margin-top: 5px; color: var(--muted); }
+
+    .empty-note { padding: 20px; color: var(--muted); border: 1px dashed #303a45; border-radius: 8px; background: #13191f; }
+    .footer-nav { display: flex; justify-content: space-between; margin-top: 18px; }
+    .footer-nav .right { display: flex; gap: 8px; }
+
+    @media (max-width: 900px) {
+      .sidebar { width: 180px; flex-basis: 180px; }
+      .workspace-grid, .build-summary { grid-template-columns: 1fr; }
+      .controller { grid-template-columns: 1fr; }
+      .controller-visual { order: -1; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">⌁</div>
+      <div>
+        <div class="brand-name">VirtualConsole-Forge</div>
+        <div class="brand-subtitle">WAD Builder for Virtual Console</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="active" data-view="build"><span class="nav-icon">▣</span><span>New Build</span></button>
+      <button data-view="ids"><span class="nav-icon">#</span><span>Title ID Checker</span></button>
+      <button data-view="settings"><span class="nav-icon">⚙</span><span>Settings</span></button>
+    </nav>
+
+    <div class="sidebar-status">
+      <div class="status-line"><span class="dot"></span><span>Cores Available</span></div>
+      <div class="status-value" id="core-count">—</div>
+      <div class="status-caption">Loaded from registry</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title" id="page-title">New Build</div>
+        <div class="page-description" id="page-description">Create and validate a Virtual Console title.</div>
+      </div>
+      <div class="top-actions">
+        <button class="button ghost" id="reset-build">Reset</button>
+      </div>
+    </header>
+
+    <div class="content">
+      <section class="view active" id="view-build">
+        <div class="stepper" id="stepper">
+          <div class="step current" data-step="0"><span class="step-number">1</span><span>Source</span></div>
+          <div class="step-line"></div>
+          <div class="step" data-step="1"><span class="step-number">2</span><span>Configuration</span></div>
+          <div class="step-line"></div>
+          <div class="step" data-step="2"><span class="step-number">3</span><span>Preview</span></div>
+          <div class="step-line"></div>
+          <div class="step" data-step="3"><span class="step-number">4</span><span>Build</span></div>
+        </div>
+
+        <div id="step-source" class="step-panel">
+          <div class="workspace-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Source</div>
+                <div class="panel-description">Choose the ROM, core, title information, and artwork for this build.</div>
+              </div>
+              <div class="panel-body">
+                <div class="form-grid">
+                  <div class="field full">
+                    <label>ROM File <span class="hint">Required</span></label>
+                    <label class="dropzone" id="rom-drop">
+                      <input id="rom-input" type="file" hidden>
+                      <div>
+                        <div class="drop-icon">⇩</div>
+                        <div class="drop-title">Drop a ROM here</div>
+                        <div class="drop-subtitle">or click to browse</div>
+                        <div class="file-name" id="rom-name"></div>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div class="field">
+                    <label for="core">Core</label>
+                    <select id="core"></select>
+                  </div>
+
+                  <div class="field">
+                    <label for="title">Title</label>
+                    <input id="title" placeholder="Enter the title name">
+                  </div>
+
+                  <div class="field">
+                    <label>Cover Art <span class="hint">Optional</span></label>
+                    <label class="dropzone" id="cover-drop">
+                      <input id="cover-input" type="file" accept="image/*" hidden>
+                      <div>
+                        <div class="drop-icon">▧</div>
+                        <div class="drop-title">Drop artwork here</div>
+                        <div class="drop-subtitle">PNG, JPEG, or other supported image</div>
+                        <div class="file-name" id="cover-name"></div>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div class="field">
+                    <label for="title-id">Title ID <span class="hint">Must be unique</span></label>
+                    <div class="inline">
+                      <input id="title-id" value="000100014E455341">
+                      <button class="button" id="check-id-inline">Check</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="validation" id="source-validation">
+                  <span>✓</span><span>Ready to configure. Required source information will be validated before build.</span>
+                </div>
+              </div>
+            </div>
+
+            <aside class="panel preview-card">
+              <div class="side-section">
+                <div class="side-heading">Device Preview</div>
+                <div class="device-preview">
+                  <div class="device-screen">
+                    <div class="menu-header"><span>Wii Menu</span><span>Sat 6/10</span></div>
+                    <div class="channel-stage">
+                      <div class="channel-tile">
+                        <div class="channel-art placeholder" id="source-preview-art"></div>
+                        <div class="channel-title" id="source-preview-title">Untitled Channel</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="device-footer"><span>Wii</span><span>✉</span></div>
+                </div>
+                <div class="preview-caption">Preview updates from the title and cover art you select.</div>
+              </div>
+            </aside>
+          </div>
+          <div class="footer-nav"><span></span><div class="right"><button class="button primary next-step">Continue →</button></div></div>
+        </div>
+
+        <div id="step-config" class="step-panel" hidden>
+          <div class="workspace-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Configuration</div>
+                <div class="panel-description">Set controller behavior and supply additional files only when the selected core requires them.</div>
+              </div>
+              <div class="panel-body">
+                <div class="field">
+                  <label for="controller">Controller Type</label>
+                  <select id="controller">
+                    <option value="classic_controller">Classic Controller</option>
+                    <option value="wiimote_sideways">Wiimote — Sideways</option>
+                    <option value="gamecube">GameCube Controller</option>
+                  </select>
+                </div>
+
+                <div class="controller" style="margin-top:18px">
+                  <div class="mapping-list">
+                    <div class="mapping-row"><span class="mapping-label">D-Pad Up</span><select><option>Up</option></select></div>
+                    <div class="mapping-row"><span class="mapping-label">D-Pad Down</span><select><option>Down</option></select></div>
+                    <div class="mapping-row"><span class="mapping-label">D-Pad Left</span><select><option>Left</option></select></div>
+                    <div class="mapping-row"><span class="mapping-label">D-Pad Right</span><select><option>Right</option></select></div>
+                  </div>
+                  <div>
+                    <div class="controller-visual">
+                      <div class="gamepad">
+                        <div class="stick left"></div><div class="stick right"></div>
+                        <div class="buttons"><span class="button-dot">Y</span><span class="button-dot">X</span><span class="button-dot">B</span><span class="button-dot">A</span></div>
+                      </div>
+                    </div>
+                    <div class="controller-note">Mappings are translated into the core configuration at build time.</div>
+                  </div>
+                  <div class="mapping-list">
+                    <div class="mapping-row"><span class="mapping-label">A Button</span><select><option>A</option></select></div>
+                    <div class="mapping-row"><span class="mapping-label">B Button</span><select><option>B</option></select></div>
+                    <div class="mapping-row"><span class="mapping-label">Start</span><select><option>Start</option></select></div>
+                    <div class="mapping-row"><span class="mapping-label">Select</span><select><option>Select</option></select></div>
+                  </div>
+                </div>
+
+                <div class="panel" style="margin-top:20px;background:#13191f">
+                  <div class="panel-header">
+                    <div class="panel-title">Core Requirements</div>
+                    <div class="panel-description">Donor-sourced cores require files you provide yourself. They are used during the build and are not downloaded by the tool.</div>
+                  </div>
+                  <div class="panel-body" id="donor-fields">
+                    <div class="empty-note">Select a donor-sourced core to show its required inputs.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="panel preview-card">
+              <div class="side-heading">Build Summary</div>
+              <div class="summary-row"><span class="summary-label">ROM</span><span class="summary-value" id="summary-rom">—</span></div>
+              <div class="summary-row"><span class="summary-label">Core</span><span class="summary-value" id="summary-core">—</span></div>
+              <div class="summary-row"><span class="summary-label">Title</span><span class="summary-value" id="summary-title">—</span></div>
+              <div class="summary-row"><span class="summary-label">Title ID</span><span class="summary-value" id="summary-id">—</span></div>
+              <div class="summary-row"><span class="summary-label">Controller</span><span class="summary-value" id="summary-controller">Classic Controller</span></div>
+            </aside>
+          </div>
+          <div class="footer-nav"><button class="button previous-step">← Back</button><div class="right"><button class="button primary next-step">Continue →</button></div></div>
+        </div>
+
+        <div id="step-preview" class="step-panel" hidden>
+          <div class="workspace-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Preview</div>
+                <div class="panel-description">See how the title and artwork will be presented in a Wii Menu-style context.</div>
+              </div>
+              <div class="panel-body" style="padding:26px">
+                <div class="device-preview" style="max-width:760px;margin:auto">
+                  <div class="device-screen">
+                    <div class="menu-header"><span>Wii Menu</span><span>Sat 6/10</span></div>
+                    <div class="channel-stage">
+                      <div class="channel-tile">
+                        <div class="channel-art placeholder" id="large-preview-art"></div>
+                        <div class="channel-title" id="large-preview-title">Untitled Channel</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="device-footer"><span>Wii</span><span>✉</span></div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="panel preview-card">
+              <div class="side-heading">Channel Details</div>
+              <div class="summary-row"><span class="summary-label">Title</span><span class="summary-value" id="preview-title">—</span></div>
+              <div class="summary-row"><span class="summary-label">System</span><span class="summary-value" id="preview-system">—</span></div>
+              <div class="summary-row"><span class="summary-label">Core</span><span class="summary-value" id="preview-core">—</span></div>
+              <div class="summary-row"><span class="summary-label">Title ID</span><span class="summary-value" id="preview-id">—</span></div>
+              <div class="validation" style="margin-top:18px"><span>✓</span><span>Preview is based on the current build inputs.</span></div>
+            </aside>
+          </div>
+          <div class="footer-nav"><button class="button previous-step">← Back</button><div class="right"><button class="button primary next-step">Continue →</button></div></div>
+        </div>
+
+        <div id="step-build" class="step-panel" hidden>
+          <div class="build-summary">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Build Summary</div>
+                <div class="panel-description">Review the inputs before generating the WAD.</div>
+              </div>
+              <div class="panel-body">
+                <div class="checklist">
+                  <div class="check-row"><span class="check-name">ROM File</span><span class="check-value" id="build-rom">— <span class="check">✓</span></span></div>
+                  <div class="check-row"><span class="check-name">Core</span><span class="check-value" id="build-core">— <span class="check">✓</span></span></div>
+                  <div class="check-row"><span class="check-name">Title</span><span class="check-value" id="build-title">— <span class="check">✓</span></span></div>
+                  <div class="check-row"><span class="check-name">Title ID</span><span class="check-value" id="build-id">— <span class="check">✓</span></span></div>
+                  <div class="check-row"><span class="check-name">Controller</span><span class="check-value" id="build-controller">— <span class="check">✓</span></span></div>
+                  <div class="check-row"><span class="check-name">Cover Art</span><span class="check-value" id="build-cover">—</span></div>
+                </div>
+                <div class="validation" id="build-status" style="margin-top:18px"><span>✓</span><span>All UI-level checks passed. Build backend integration is ready when file paths are available from the host.</span></div>
+              </div>
+            </div>
+
+            <aside class="panel panel-body build-action">
+              <div>
+                <div class="side-heading">Output</div>
+                <input id="output-path" placeholder="Path to output WAD">
+                <div class="panel-description" style="margin-top:8px">The generated WAD is an output artifact; it is not added to an application library.</div>
+              </div>
+              <button class="button primary build-button" id="build-button">⚒ Build WAD</button>
+            </aside>
+          </div>
+          <div class="footer-nav"><button class="button previous-step">← Back</button><div class="right"><button class="button" id="reset-build-bottom">Build Another</button></div></div>
+        </div>
+      </section>
+
+      <section class="view" id="view-ids">
+        <div class="title-id-layout">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Title ID Checker</div>
+              <div class="panel-description">Check whether a Title ID is already in use. This is the only build history/state this UI treats as persistent.</div>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label for="standalone-id">Title ID</label>
+                <div class="inline">
+                  <input id="standalone-id" placeholder="000100014E455341">
+                  <button class="button primary" id="standalone-check">Check</button>
+                </div>
+              </div>
+              <div class="id-result available" id="id-result">
+                <div class="id-state">✓ Available</div>
+                <div class="id-detail">Enter a Title ID to check for conflicts.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="view" id="view-settings">
+        <div class="title-id-layout">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title">Settings</div>
+              <div class="panel-description">Application-level preferences. Build outputs are never treated as a managed library.</div>
+            </div>
+            <div class="panel-body">
+              <div class="field">
+                <label for="registry-path">Core Registry Path</label>
+                <input id="registry-path" value="cores/registry.json">
+              </div>
+              <div class="validation" style="margin-top:18px"><span>i</span><span>Registry discovery and output handling can be connected to the Tauri host without introducing game-library state.</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const state = {
+    step: 0,
+    cores: [],
+    rom: null,
+    coverUrl: null,
+    coverName: "",
+    donor: null,
+    keys: null,
+  };
+
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+
+  async function invoke(command, args) {
+    if (window.__TAURI__?.core?.invoke) {
+      return window.__TAURI__.core.invoke(command, args);
+    }
+    return null;
+  }
+
+  function setStep(step) {
+    state.step = Math.max(0, Math.min(3, step));
+    $$(".step").forEach((el, i) => {
+      el.classList.toggle("current", i === state.step);
+      el.classList.toggle("complete", i < state.step);
+    });
+    $$(".step-panel").forEach((el, i) => el.hidden = i !== state.step);
+    updateSummary();
+  }
+
+  $$(".step").forEach((el) => el.addEventListener("click", () => {
+    const target = Number(el.dataset.step);
+    if (target <= state.step + 1) setStep(target);
+  }));
+  $$(".next-step").forEach((b) => b.addEventListener("click", () => setStep(state.step + 1)));
+  $$(".previous-step").forEach((b) => b.addEventListener("click", () => setStep(state.step - 1)));
+
+  $$(".nav button").forEach((button) => button.addEventListener("click", () => {
+    $$(".nav button").forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+    $$(".view").forEach(v => v.classList.remove("active"));
+    $(`#view-${button.dataset.view}`).classList.add("active");
+
+    const meta = {
+      build: ["New Build", "Create and validate a Virtual Console title."],
+      ids: ["Title ID Checker", "Check Title IDs for conflicts without managing WADs."],
+      settings: ["Settings", "Application-level configuration."]
+    }[button.dataset.view];
+    $("#page-title").textContent = meta[0];
+    $("#page-description").textContent = meta[1];
+  }));
+
+  function wireDrop(zone, input, onFile) {
+    const el = $(zone), fileInput = $(input);
+    el.addEventListener("click", () => fileInput.click());
+    fileInput.addEventListener("change", () => fileInput.files[0] && onFile(fileInput.files[0]));
+    ["dragenter", "dragover"].forEach(e => el.addEventListener(e, ev => {
+      ev.preventDefault(); el.classList.add("dragging");
+    }));
+    ["dragleave", "drop"].forEach(e => el.addEventListener(e, ev => {
+      ev.preventDefault(); el.classList.remove("dragging");
+    }));
+    el.addEventListener("drop", ev => ev.dataTransfer.files[0] && onFile(ev.dataTransfer.files[0]));
+  }
+
+  wireDrop("#rom-drop", "#rom-input", file => {
+    state.rom = file;
+    $("#rom-name").textContent = file.name;
+    updateSummary();
+  });
+
+  wireDrop("#cover-drop", "#cover-input", file => {
+    state.coverName = file.name;
+    if (state.coverUrl) URL.revokeObjectURL(state.coverUrl);
+    state.coverUrl = URL.createObjectURL(file);
+    $("#cover-name").textContent = file.name;
+    ["#source-preview-art", "#large-preview-art"].forEach(sel => {
+      const art = $(sel);
+      art.classList.remove("placeholder");
+      art.style.backgroundImage = `url("${state.coverUrl}")`;
+    });
+    updateSummary();
+  });
+
+  $("#title").addEventListener("input", updateSummary);
+  $("#title-id").addEventListener("input", updateSummary);
+  $("#controller").addEventListener("change", updateSummary);
+  $("#core").addEventListener("change", updateCoreRequirements);
+
+  async function loadCores() {
+    const registryPath = $("#registry-path").value || "cores/registry.json";
+    let cores = await invoke("list_cores", { registryPath });
+    if (!cores) {
+      cores = [{ id: "nes", system: "NES", donor_label: "Any legitimately-owned NES Virtual Console title (donor-sourced core)." }];
+    }
+    state.cores = cores;
+    const select = $("#core");
+    select.innerHTML = cores.map(c => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.system || c.id)} — ${escapeHtml(c.id)}</option>`).join("");
+    $("#core-count").textContent = cores.length;
+    updateCoreRequirements();
+    updateSummary();
+  }
+
+  function updateCoreRequirements() {
+    const id = $("#core").value;
+    const core = state.cores.find(c => c.id === id);
+    const donor = core?.donor_label;
+    const box = $("#donor-fields");
+    if (!donor) {
+      state.donor = state.keys = null;
+      box.innerHTML = `<div class="empty-note">This core does not currently require a donor WAD or common key.</div>`;
+      return;
+    }
+    box.innerHTML = `
+      <div class="field">
+        <label>Donor WAD <span class="hint">Required for this core</span></label>
+        <label class="dropzone" id="donor-drop">
+          <input id="donor-input" type="file" hidden>
+          <div><div class="drop-title">Drop donor WAD here</div><div class="drop-subtitle">${escapeHtml(donor)}</div><div class="file-name" id="donor-name"></div></div>
+        </label>
+      </div>
+      <div class="field" style="margin-top:15px">
+        <label>Common Key File <span class="hint">Required for this core</span></label>
+        <label class="dropzone" id="keys-drop">
+          <input id="keys-input" type="file" hidden>
+          <div><div class="drop-title">Drop keys file here</div><div class="drop-subtitle">Used locally during the build.</div><div class="file-name" id="keys-name"></div></div>
+        </label>
+      </div>`;
+    wireDrop("#donor-drop", "#donor-input", file => { state.donor = file; $("#donor-name").textContent = file.name; });
+    wireDrop("#keys-drop", "#keys-input", file => { state.keys = file; $("#keys-name").textContent = file.name; });
+  }
+
+  function updateSummary() {
+    const title = $("#title").value || "Untitled Channel";
+    const core = state.cores.find(c => c.id === $("#core").value);
+    const system = core?.system || "—";
+    const controller = $("#controller").selectedOptions[0]?.text || "—";
+    const rom = state.rom?.name || "—";
+    const id = $("#title-id").value || "—";
+
+    ["#source-preview-title", "#large-preview-title"].forEach(s => $(s).textContent = title);
+    $("#summary-rom").textContent = rom;
+    $("#summary-core").textContent = core ? `${system} — ${core.id}` : "—";
+    $("#summary-title").textContent = title;
+    $("#summary-id").textContent = id;
+    $("#summary-controller").textContent = controller;
+
+    $("#preview-title").textContent = title;
+    $("#preview-system").textContent = system;
+    $("#preview-core").textContent = core?.id || "—";
+    $("#preview-id").textContent = id;
+
+    $("#build-rom").innerHTML = `${escapeHtml(rom)} <span class="check">✓</span>`;
+    $("#build-core").innerHTML = `${escapeHtml(core?.id || "—")} <span class="check">✓</span>`;
+    $("#build-title").innerHTML = `${escapeHtml(title)} <span class="check">✓</span>`;
+    $("#build-id").innerHTML = `${escapeHtml(id)} <span class="check">✓</span>`;
+    $("#build-controller").innerHTML = `${escapeHtml(controller)} <span class="check">✓</span>`;
+    $("#build-cover").innerHTML = state.coverName ? `${escapeHtml(state.coverName)} <span class="check">✓</span>` : "Not supplied";
+
+    $("#source-validation").innerHTML = state.rom && title
+      ? `<span>✓</span><span>Required source information is present. You can continue.</span>`
+      : `<span>!</span><span>Add a ROM and title before building.</span>`;
+    $("#source-validation").classList.toggle("warning", !(state.rom && title));
+  }
+
+  async function checkId(id) {
+    const result = $("#id-result");
+    const normalized = id.trim().toUpperCase();
+    if (!normalized) {
+      result.className = "id-result";
+      result.innerHTML = `<div class="id-state">Enter a Title ID</div><div class="id-detail">Nothing to check yet.</div>`;
+      return;
+    }
+    // Persistent ID storage is intentionally isolated from build/WAD tracking.
+    const used = JSON.parse(localStorage.getItem("vcf.usedTitleIds") || "[]");
+    const isUsed = used.includes(normalized);
+    result.className = `id-result ${isUsed ? "used" : "available"}`;
+    result.innerHTML = isUsed
+      ? `<div class="id-state">⚠ Already used</div><div class="id-detail">This Title ID is recorded as used by VirtualConsole-Forge.</div>`
+      : `<div class="id-state">✓ Available</div><div class="id-detail">No recorded conflict for this Title ID.</div>`;
+  }
+
+  $("#standalone-check").addEventListener("click", () => checkId($("#standalone-id").value));
+  $("#check-id-inline").addEventListener("click", () => checkId($("#title-id").value));
+
+  $("#build-button").addEventListener("click", async () => {
+    const status = $("#build-status");
+    if (!state.rom || !$("#title").value) {
+      status.className = "validation error";
+      status.innerHTML = `<span>!</span><span>A ROM and title are required before building.</span>`;
+      return;
+    }
+
+    // HTML file inputs do not reliably expose native filesystem paths in every
+    // Tauri webview. When the host supplies paths, this calls the real command.
+    const romPath = state.rom.path || state.rom.webkitRelativePath || "";
+    const coverPath = "";
+    const outputPath = $("#output-path").value.trim();
+
+    if (window.__TAURI__?.core?.invoke && romPath && outputPath) {
+      try {
+        const mapping = { device: $("#controller").value, map: {} };
+        await invoke("build_wad_command", {
+          registryPath: $("#registry-path").value || "cores/registry.json",
+          coreId: $("#core").value,
+          romPath,
+          coverPath: coverPath || null,
+          title: $("#title").value,
+          outputPath,
+          mapping,
+          donorPath: state.donor?.path || null,
+          keysPath: state.keys?.path || null
+        });
+        const used = JSON.parse(localStorage.getItem("vcf.usedTitleIds") || "[]");
+        const id = $("#title-id").value.trim().toUpperCase();
+        if (id && !used.includes(id)) localStorage.setItem("vcf.usedTitleIds", JSON.stringify([...used, id]));
+        status.className = "validation";
+        status.innerHTML = `<span>✓</span><span>WAD built successfully.</span>`;
+      } catch (error) {
+        status.className = "validation error";
+        status.innerHTML = `<span>!</span><span>${escapeHtml(String(error))}</span>`;
+      }
+      return;
+    }
+
+    status.className = "validation warning";
+    status.innerHTML = `<span>i</span><span>UI is ready, but this browser context does not expose native file paths. The Tauri host needs to provide paths through its file-dialog/drag-drop integration before the real build command can run.</span>`;
+  });
+
+  function resetBuild() {
+    state.rom = state.donor = state.keys = null;
+    state.coverName = "";
+    if (state.coverUrl) URL.revokeObjectURL(state.coverUrl);
+    state.coverUrl = null;
+    $("#rom-name").textContent = "";
+    $("#cover-name").textContent = "";
+    $("#title").value = "";
+    $("#title-id").value = "000100014E455341";
+    $("#output-path").value = "";
+    ["#source-preview-art", "#large-preview-art"].forEach(sel => {
+      const art = $(sel);
+      art.classList.add("placeholder");
+      art.style.backgroundImage = "";
+    });
+    setStep(0);
+    updateSummary();
+  }
+  $("#reset-build").addEventListener("click", resetBuild);
+  $("#reset-build-bottom").addEventListener("click", resetBuild);
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
+  }
+
+  loadCores();
+  updateSummary();
+})();
+</script>
+</body>
 </html>
