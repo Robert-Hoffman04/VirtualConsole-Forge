@@ -35,7 +35,10 @@ docs/         design notes
 Early skeleton. Module boundaries and struct layouts are in place; the
 actual WAD container assembly, real signature-block layout, common-key
 title-key decryption, donor WAD parsing, and banner encoding are stubbed
-with `TODO`s — see `docs/DESIGN.md#open-todos`.
+with `TODO`s — see `docs/DESIGN.md#open-todos`. App icons under
+`crates/vc-tauri/src-tauri/icons/` are placeholders (required for Tauri's
+`generate_context!()` macro to compile at all) — swap them for real
+branding before shipping a built app.
 
 ## Building
 
