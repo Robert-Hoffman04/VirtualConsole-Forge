@@ -1,11 +1,13 @@
 /target/
 crates/*/target/
 crates/vc-tauri/src-tauri/target/
+crates/vc-tauri/src-tauri/gen/
 node_modules/
 dist/
 *.wad
 cores/*.dol
 .DS_Store
+*.patch
 
 # Donor WADs and key material are 100% user-supplied and must never be
 # committed — the whole point of the donor model is that nothing
