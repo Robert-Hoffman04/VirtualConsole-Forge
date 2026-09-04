@@ -6,8 +6,9 @@
 use crate::banner::{build_banner, BannerInput};
 use crate::config::VcConfig;
 use crate::crypto::{encrypt_content, sha1_hash, sign_fakesigned};
+use crate::donor::{extract_core, parse_donor_wad, KeyProvider};
 use crate::error::VcError;
-use crate::registry::CoreDefinition;
+use crate::registry::{CoreDefinition, CoreSource};
 use crate::rom::{normalize_rom, validate_rom};
 use crate::ticket::{build_ticket, TicketBuildRequest};
 use crate::tmd::{build_tmd, ContentEntry, TmdBuildRequest};
@@ -26,6 +27,14 @@ pub struct WadBuildRequest<'a> {
     /// across multiple builds.
     pub title_id: [u8; 8],
     pub title_key: [u8; 16],
+    /// Required when `core.core_source` is `CoreSource::Donor`; ignored
+    /// for `CoreSource::Bundled`. Path to a WAD the user supplied
+    /// themselves (typically resolved via `DonorStore::lookup` before
+    /// calling `build_wad`).
+    pub donor_wad_path: Option<&'a Path>,
+    /// Required alongside `donor_wad_path`. Never has a default value —
+    /// see `donor::KeyProvider`.
+    pub keys: Option<&'a KeyProvider>,
 }
 
 /// Assemble a complete, installable WAD from a validated ROM, a core
@@ -33,7 +42,8 @@ pub struct WadBuildRequest<'a> {
 /// 1. validate + normalize the ROM for this core
 /// 2. build the banner content
 /// 3. serialize the config content
-/// 4. load the core's DOL bytes
+/// 4. obtain the core's DOL — either read from `cores/` (Bundled) or
+///    ripped from a user-supplied donor WAD (Donor)
 /// 5. assemble the content list, compute per-content hashes
 /// 6. build TMD + ticket around that content list
 /// 7. encrypt each content with the title key
@@ -49,7 +59,26 @@ pub fn build_wad(req: WadBuildRequest) -> Result<Vec<u8>, VcError> {
     })?;
 
     let config_bytes = req.config.to_bytes().to_vec();
-    let dol_bytes = fs::read(&req.core.dol_path)?;
+
+    let dol_bytes = match &req.core.core_source {
+        CoreSource::Bundled { dol_path } => fs::read(dol_path)?,
+        CoreSource::Donor { .. } => {
+            let donor_path = req.donor_wad_path.ok_or_else(|| {
+                VcError::DonorWad(format!(
+                    "{} requires a donor WAD but none was supplied",
+                    req.core.system
+                ))
+            })?;
+            let keys = req.keys.ok_or_else(|| {
+                VcError::DonorKey(
+                    "donor extraction requires a KeyProvider (user-supplied common key)".into(),
+                )
+            })?;
+            let donor_bytes = fs::read(donor_path)?;
+            let donor = parse_donor_wad(&donor_bytes)?;
+            extract_core(&donor, req.core, keys)?
+        }
+    };
 
     // Content order: DOL, ROM, banner, config — matches the table in
     // build_wad's module doc and the earlier design discussion.

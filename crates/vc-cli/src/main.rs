@@ -1,7 +1,8 @@
 use clap::Parser;
 use std::path::PathBuf;
 use vc_core::config::{InputDeviceId, SaveTarget, VcConfig};
-use vc_core::registry::{find_core, load_registry};
+use vc_core::donor::KeyProvider;
+use vc_core::registry::{find_core, load_registry, CoreSource};
 use vc_core::wad::{build_wad, WadBuildRequest};
 
 /// Build a channel-style WAD from a ROM and a registered core.
@@ -31,6 +32,18 @@ struct Args {
     /// Output WAD path
     #[arg(long)]
     output: PathBuf,
+
+    /// Path to a donor WAD (required if the selected core is donor-sourced —
+    /// see `CoreSource::Donor` in the registry). Must be a WAD the user
+    /// already legitimately owns; this tool never supplies one.
+    #[arg(long)]
+    donor: Option<PathBuf>,
+
+    /// Path to a local file holding the user's own Wii common key (raw 16
+    /// bytes or 32 hex chars). Required alongside --donor. Never has a
+    /// default or built-in value — see `donor::KeyProvider`.
+    #[arg(long)]
+    keys: Option<PathBuf>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -40,6 +53,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let core = find_core(&cores, &args.core)?;
 
     let cover_bytes = args.cover.as_ref().map(std::fs::read).transpose()?;
+
+    if matches!(core.core_source, CoreSource::Donor { .. }) && (args.donor.is_none() || args.keys.is_none()) {
+        if let CoreSource::Donor { donor_label, .. } = &core.core_source {
+            eprintln!(
+                "{} is a donor-sourced core and requires both --donor and --keys.\n\
+                 Supply: {donor_label}",
+                core.system
+            );
+        }
+        std::process::exit(1);
+    }
+
+    let key_provider = args.keys.as_deref().map(KeyProvider::from_file).transpose()?;
 
     // Placeholder title id / title key allocation — real version tracks
     // allocated ids in a local database to avoid collisions across builds.
@@ -62,6 +88,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         config,
         title_id,
         title_key,
+        donor_wad_path: args.donor.as_deref(),
+        keys: key_provider.as_ref(),
     })?;
 
     std::fs::write(&args.output, wad_bytes)?;

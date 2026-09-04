@@ -6,3 +6,13 @@ dist/
 *.wad
 cores/*.dol
 .DS_Store
+
+# Donor WADs and key material are 100% user-supplied and must never be
+# committed — the whole point of the donor model is that nothing
+# copyrighted ships in this repo. These patterns are a backstop in case
+# someone points a local donor store or key file at a path inside the repo.
+donor-store/
+donor-wads/
+*.key
+keys.bin
+common-key*

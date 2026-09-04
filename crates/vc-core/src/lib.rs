@@ -20,6 +20,8 @@
 pub mod banner;
 pub mod config;
 pub mod crypto;
+pub mod donor;
+pub mod donor_store;
 pub mod error;
 pub mod registry;
 pub mod rom;
@@ -27,6 +29,8 @@ pub mod ticket;
 pub mod tmd;
 pub mod wad;
 
+pub use donor::KeyProvider;
+pub use donor_store::DonorStore;
 pub use error::VcError;
 pub use registry::CoreDefinition;
 pub use wad::{build_wad, WadBuildRequest};

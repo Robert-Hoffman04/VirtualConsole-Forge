@@ -20,6 +20,12 @@ pub enum VcError {
     #[error("banner generation failed: {0}")]
     BannerError(String),
 
+    #[error("donor WAD error: {0}")]
+    DonorWad(String),
+
+    #[error("donor key error: {0}")]
+    DonorKey(String),
+
     #[error("image processing error: {0}")]
     Image(#[from] image::ImageError),
 

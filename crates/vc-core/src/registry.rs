@@ -2,7 +2,16 @@
 //!
 //! Each supported system (NES, SNES, Genesis, etc.) is described by a
 //! `CoreDefinition` loaded from `cores/registry.json`. Adding a new system
-//! means adding a DOL + a JSON entry here — no changes to packing code.
+//! means adding a JSON entry here — no changes to packing code.
+//!
+//! A core's DOL comes from one of two sources (`CoreSource`):
+//! - `Bundled`: a DOL this project actually owns/built (e.g. an original
+//!   from-scratch libretro-based port) and can ship directly.
+//! - `Donor`: nothing is shipped. The DOL is ripped at runtime out of a
+//!   donor WAD the *user* supplies — see `donor.rs`. This is the default
+//!   for any core derived from or resembling an official Nintendo VC
+//!   emulator, since redistributing that binary ourselves would be
+//!   redistributing Nintendo's copyrighted code.
 
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -29,14 +38,39 @@ pub struct ButtonMapping {
     pub map: std::collections::BTreeMap<String, String>,
 }
 
+/// Where a core's DOL comes from.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "kind", rename_all = "snake_case")]
+pub enum CoreSource {
+    /// A DOL this project owns outright and can ship in `cores/`.
+    Bundled { dol_path: PathBuf },
+    /// No binary shipped with this tool. At build time the DOL must be
+    /// extracted from a donor WAD the user supplies themselves — see
+    /// `donor::extract_core`.
+    Donor {
+        /// Title id of the official WAD this core's DOL should be ripped
+        /// from. NES/SNES/etc. VC titles largely share one core per
+        /// region across different games, but this pins to one
+        /// known-good donor rather than accepting any title of that
+        /// system — see docs/DESIGN.md for the tradeoff.
+        title_id: [u8; 8],
+        /// Which content index within the donor WAD holds the DOL
+        /// (content 0 in essentially every real VC WAD).
+        dol_content_index: u16,
+        /// Human-readable description shown to the user when asking them
+        /// to supply this donor, e.g. "Any legitimately-owned NES VC
+        /// title, US region (tested against Super Mario Bros.)".
+        donor_label: String,
+    },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CoreDefinition {
     /// Human-readable system name, e.g. "SNES"
     pub system: String,
     /// Unique id used in title-id allocation / CLI selection, e.g. "snes"
     pub id: String,
-    /// Path to the prebuilt DOL, relative to the registry file
-    pub dol_path: PathBuf,
+    pub core_source: CoreSource,
     /// Accepted ROM file extensions, lowercase, no leading dot
     pub valid_extensions: Vec<String>,
     /// Bytes to strip from the start of the ROM before embedding, if any
@@ -52,16 +86,19 @@ pub struct CoreDefinition {
 }
 
 /// Load every core definition listed in `registry.json` at the given path.
-/// DOL paths inside each definition are resolved relative to the registry
-/// file's parent directory.
+/// Bundled DOL paths are resolved relative to the registry file's parent
+/// directory; donor requirements need no path resolution since nothing is
+/// shipped for them.
 pub fn load_registry(path: &Path) -> Result<Vec<CoreDefinition>, VcError> {
     let raw = fs::read_to_string(path)?;
     let mut defs: Vec<CoreDefinition> = serde_json::from_str(&raw)?;
 
     let base = path.parent().unwrap_or_else(|| Path::new("."));
     for def in &mut defs {
-        if def.dol_path.is_relative() {
-            def.dol_path = base.join(&def.dol_path);
+        if let CoreSource::Bundled { dol_path } = &mut def.core_source {
+            if dol_path.is_relative() {
+                *dol_path = base.join(&dol_path);
+            }
         }
     }
     Ok(defs)
@@ -73,3 +110,4 @@ pub fn find_core<'a>(defs: &'a [CoreDefinition], id: &str) -> Result<&'a CoreDef
         .find(|d| d.id == id)
         .ok_or_else(|| VcError::UnknownCore(id.to_string()))
 }
+

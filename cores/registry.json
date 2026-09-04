@@ -2,7 +2,12 @@
   {
     "system": "NES",
     "id": "nes",
-    "dol_path": "nes.dol",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 78, 69, 83, 65],
+      "dol_content_index": 0,
+      "donor_label": "Any legitimately-owned NES Virtual Console title, US region (verified against Super Mario Bros.). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
     "valid_extensions": ["nes"],
     "header_size": null,
     "default_mappings": [
