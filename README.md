@@ -25,20 +25,54 @@ layout, donor-extraction flow, and signing notes.
 crates/
   vc-core/    format/crypto/packing/donor-extraction library — no UI dependency
   vc-cli/     CLI wrapper, doubles as the validation/test harness
-  vc-tauri/   Tauri GUI shell
+  vc-tauri/
+    src-tauri/          Rust backend: commands, dialog plugin, capabilities
+    src/
+      index.html        page structure only
+      styles.css         all styling
+      js/                one module per concern (see below)
 cores/        registry.json (core plugin definitions) + any Bundled DOLs
 docs/         design notes
 ```
+
+### `vc-tauri/src/js` module map
+
+| Module | Responsibility |
+|---|---|
+| `dom.js` | `$`/`$$` query helpers, `escapeHtml`, `basename` |
+| `tauri.js` | `invoke()` wrapper, dialog-plugin `pickFile`/`pickSaveFile`, `assetUrl`, native drag-drop subscription |
+| `state.js` | shared build-wizard state object |
+| `dropzones.js` | wires `.dropzone` elements to real filesystem paths — see below |
+| `cores.js` | loads the registry (`list_cores`), builds the core `<select>`, renders donor/keys fields |
+| `summary.js` | keeps every summary/preview element in sync with state |
+| `nav.js` | wizard step navigation + sidebar view switching |
+| `titleid.js` | Title ID conflict-check prototype (local-only, see comments in the file) |
+| `source.js` | Source-step field wiring (cover art dropzone, plain inputs) |
+| `paths.js` | "Browse" buttons for the output/registry path inputs |
+| `build.js` | calls `build_wad_command`, handles the reset button |
+| `main.js` | entry point — wires everything together on load |
 
 ## Status
 
 Early skeleton. Module boundaries and struct layouts are in place; the
 actual WAD container assembly, real signature-block layout, common-key
-title-key decryption, donor WAD parsing, and banner encoding are stubbed
-with `TODO`s — see `docs/DESIGN.md#open-todos`. App icons under
+title-key decryption, donor WAD parsing, banner encoding, and translating
+the controller-mapping UI into `VcConfig.button_map` are stubbed with
+`TODO`s — see `docs/DESIGN.md#open-todos`. App icons under
 `crates/vc-tauri/src-tauri/icons/` are placeholders (required for Tauri's
 `generate_context!()` macro to compile at all) — swap them for real
 branding before shipping a built app.
+
+The Tauri UI's file pickers (ROM, cover art, donor WAD, key file, output
+path, registry path) are wired to real native dialogs and real native
+drag-and-drop via `tauri-plugin-dialog` and the `tauri://drag-drop` event
+— not the browser's HTML5 `<input type="file">`/`DragEvent`, which the
+Tauri v2 webview doesn't populate with a usable path. See `dropzones.js`
+and `tauri.js` for details, and `capabilities/default.json` +
+`tauri.conf.json`'s `app.security.assetProtocol` for the permissions this
+requires. `assetProtocol.scope` is set broadly (`"**"`) since cover art
+can be selected from anywhere on disk — worth tightening if that becomes
+a concern.
 
 ## Building
 

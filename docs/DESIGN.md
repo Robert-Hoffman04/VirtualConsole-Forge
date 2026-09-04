@@ -104,6 +104,51 @@ documentation, not left as a silent assumption.
 - `vc-tauri` — GUI shell, calls the same `vc_core::wad::build_wad` entry
   point as the CLI, including the donor/keys path.
 
+## vc-tauri frontend architecture
+
+`crates/vc-tauri/src` has no bundler or npm dependency — it's plain HTML,
+CSS, and ES modules served directly by Tauri, imported via
+`<script type="module" src="js/main.js">`. `index.html` is markup only;
+`styles.css` holds all styling; `js/` has one module per concern (see the
+table in the README). Splitting it this way keeps each file focused on
+one job and makes it easy to find where a given piece of UI behavior
+lives without scrolling a single 900-line file.
+
+### Getting real filesystem paths out of the webview
+
+The prototype UI originally used a hidden `<input type="file">` per
+dropzone plus the browser's HTML5 `DragEvent`. Neither reliably exposes
+an absolute filesystem path inside a Tauri v2 webview (v1 populated
+`File.path`; v2 removed that for security reasons), which meant the UI
+had no way to actually hand a real path to `build_wad_command`. Two
+mechanisms replace it, both in `tauri.js`/`dropzones.js`:
+
+- **Click-to-browse**: calls `tauri-plugin-dialog`'s `open`/`save`
+  commands directly via `invoke("plugin:dialog|open", {...})` — no npm
+  package needed, since every Tauri plugin command is reachable through
+  the core `invoke()` bridge once `app.withGlobalTauri` is set (already
+  true in `tauri.conf.json`) using the `plugin:<name>|<command>`
+  convention. Always returns a real absolute path or `null`.
+- **Native drag-and-drop**: subscribes to the window-level
+  `tauri://drag-drop` event (real OS drag-drop, delivered with real
+  paths), hit-tests the drop position against registered `.dropzone`
+  elements via `document.elementFromPoint`, and dispatches the path to
+  whichever zone the cursor was over.
+
+Both feed into the same `registerDropzone(id, { filters, onPick })` API,
+so a caller doesn't need to think about which mechanism fired.
+`registerDropzone` is safe to call repeatedly for the same element (e.g.
+when the ROM dropzone's file-type filter needs to change because the
+selected core changed) — it always refreshes the zone's config, but only
+attaches DOM listeners to a given element once, tracked via a `WeakSet`.
+
+This requires two things enabled on the Rust/config side:
+`tauri-plugin-dialog` registered in `main.rs` plus granted in
+`capabilities/default.json`, and `app.security.assetProtocol` enabled in
+`tauri.conf.json` (used by `tauri.js#assetUrl` / `convertFileSrc` to
+preview cover art from an arbitrary local path — see the Status section
+in the README for the scope tradeoff there).
+
 ## Suggested build order
 
 1. `crypto.rs` + `tmd.rs` + `ticket.rs` + `wad.rs` against one hardcoded
@@ -140,5 +185,11 @@ documentation, not left as a silent assumption.
   as a placeholder, which is not correct.
 - Title id allocation / collision tracking across multiple builds (not
   yet implemented in either `vc-cli` or `vc-tauri`).
+- `commands::build_wad_command` — the `mapping` argument sent from the
+  Configuration step's controller UI isn't translated into
+  `VcConfig.button_map` yet; the command currently builds an all-zero
+  `VcConfig` regardless of what the frontend sends. Needs the physical-
+  button enum + string->id lookup table mentioned in an earlier design
+  note before this can be wired up properly.
 - Donor "any title of this system" acceptance via an allow-listed hash
   set, instead of pinning to one exact donor title id (see note above).
