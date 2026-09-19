@@ -14,15 +14,50 @@ use vc_core::wad::{build_wad, WadBuildRequest};
 pub struct CoreSummary {
     id: String,
     system: String,
+    /// File extensions the ROM picker should filter on (e.g. ["nes"]).
+    valid_extensions: Vec<String>,
     /// Present when the core needs a user-supplied donor WAD; the
     /// frontend should prompt for one (and for the keys file) before
     /// calling build_wad_command.
     donor_label: Option<String>,
 }
 
+/// The UI's default registry path ("cores/registry.json") is relative, and
+/// the process's working directory differs between `cargo run` (repo root),
+/// `cargo tauri dev` (src-tauri/) and a packaged app. If the path doesn't
+/// exist as given, look for it in the cwd's, the executable's and the
+/// source tree's ancestor directories.
+fn resolve_registry_path(path: &str) -> PathBuf {
+    let p = PathBuf::from(path);
+    if p.is_absolute() || p.exists() {
+        return p;
+    }
+    let mut starts: Vec<PathBuf> = Vec::new();
+    if let Ok(cwd) = std::env::current_dir() {
+        starts.push(cwd);
+    }
+    if let Ok(exe) = std::env::current_exe() {
+        if let Some(dir) = exe.parent() {
+            starts.push(dir.to_path_buf());
+        }
+    }
+    starts.push(PathBuf::from(env!("CARGO_MANIFEST_DIR")));
+    for start in starts {
+        for dir in start.ancestors() {
+            let candidate = dir.join(&p);
+            if candidate.exists() {
+                return candidate;
+            }
+        }
+    }
+    p
+}
+
 #[tauri::command]
 pub fn list_cores(registry_path: String) -> Result<Vec<CoreSummary>, String> {
-    let cores = load_registry(&PathBuf::from(registry_path)).map_err(|e| e.to_string())?;
+    let resolved = resolve_registry_path(&registry_path);
+    let cores = load_registry(&resolved)
+        .map_err(|e| format!("could not load core registry '{}': {e}", resolved.display()))?;
     Ok(cores
         .into_iter()
         .map(|c: CoreDefinition| {
@@ -33,6 +68,7 @@ pub fn list_cores(registry_path: String) -> Result<Vec<CoreSummary>, String> {
             CoreSummary {
                 id: c.id,
                 system: c.system,
+                valid_extensions: c.valid_extensions,
                 donor_label,
             }
         })
@@ -57,7 +93,7 @@ pub fn build_wad_command(
     donor_path: Option<String>,
     keys_path: Option<String>,
 ) -> Result<String, String> {
-    let cores = load_registry(&PathBuf::from(registry_path)).map_err(|e| e.to_string())?;
+    let cores = load_registry(&resolve_registry_path(&registry_path)).map_err(|e| e.to_string())?;
     let core = find_core(&cores, &core_id).map_err(|e| e.to_string())?;
 
     if let CoreSource::Donor { donor_label, .. } = &core.core_source {

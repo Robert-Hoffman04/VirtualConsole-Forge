@@ -18,9 +18,17 @@ import { initNativeDragDrop } from "./dropzones.js";
   // Registers the window-level listener that makes drag-and-drop onto any
   // .dropzone actually resolve to a real filesystem path -- see
   // dropzones.js for why this can't be done with plain HTML5 drag events.
-  await initNativeDragDrop();
+  try {
+    await initNativeDragDrop();
+  } catch (err) {
+    console.error("native drag-drop init failed:", err);
+  }
 
-  await loadCores(); // also (re)registers the ROM dropzone for the default core
+  try {
+    await loadCores(); // also (re)registers the ROM dropzone for the default core
+  } catch (err) {
+    console.error("loadCores failed:", err);
+  }
   updateSummary();
   setStep(0);
 })();

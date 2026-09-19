@@ -12,7 +12,10 @@ export function hasTauri() {
 }
 
 export async function invoke(command, args) {
-  if (!hasTauri()) return null;
+  if (!hasTauri()) {
+    console.warn(`invoke(${command}): window.__TAURI__ is missing (is app.withGlobalTauri set?)`);
+    return null;
+  }
   return window.__TAURI__.core.invoke(command, args);
 }
 
@@ -22,13 +25,13 @@ export async function invoke(command, args) {
  * present (e.g. previewing this UI in a plain browser).
  */
 export async function pickFile({ filters, title } = {}) {
+  // tauri-plugin-dialog v2 expects its arguments wrapped in an `options` key.
   const result = await invoke("plugin:dialog|open", {
-    multiple: false,
-    directory: false,
-    filters,
-    title,
+    options: { multiple: false, directory: false, filters, title },
   });
-  return typeof result === "string" ? result : null;
+  if (typeof result === "string") return result;
+  if (result && typeof result.path === "string") return result.path;
+  return null;
 }
 
 /**
@@ -36,7 +39,9 @@ export async function pickFile({ filters, title } = {}) {
  * if cancelled / no Tauri host present.
  */
 export async function pickSaveFile({ defaultPath, filters, title } = {}) {
-  const result = await invoke("plugin:dialog|save", { defaultPath, filters, title });
+  const result = await invoke("plugin:dialog|save", {
+    options: { defaultPath, filters, title },
+  });
   return typeof result === "string" ? result : null;
 }
 

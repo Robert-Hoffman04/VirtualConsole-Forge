@@ -8,7 +8,16 @@ import { updateSummary } from "./summary.js";
 /** Load the core registry (via the `list_cores` Tauri command) and populate the core <select>. */
 export async function loadCores() {
   const registryPath = $("#registry-path").value || "cores/registry.json";
-  let cores = await invoke("list_cores", { registryPath });
+  let cores = null;
+  try {
+    cores = await invoke("list_cores", { registryPath });
+  } catch (err) {
+    // Don't let a bad registry path abort startup: the dropzones still
+    // need to be wired up so the user can at least pick files.
+    console.error("list_cores failed:", err);
+    showError(`Could not load core registry: ${err}`);
+    cores = [];
+  }
   if (!cores) {
     // No Tauri host present -- e.g. previewing this file directly in a
     // plain browser during frontend-only work. Fall back to a stand-in
@@ -33,6 +42,13 @@ export async function loadCores() {
 
   updateCoreRequirements();
   updateSummary();
+}
+
+function showError(message) {
+  const el = $("#core-count");
+  if (el) el.title = message;
+  const zone = $("#rom-name");
+  if (zone) zone.textContent = message;
 }
 
 /** Rebuild the ROM dropzone's filter and the donor/keys fields for the currently selected core. */

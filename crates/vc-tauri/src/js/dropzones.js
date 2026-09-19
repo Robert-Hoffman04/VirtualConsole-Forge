@@ -57,8 +57,14 @@ export function registerDropzone(id, { filters, title, onPick } = {}) {
 async function pickForZone(id) {
   const zone = zones.get(id);
   if (!zone) return;
-  const path = await pickFile({ filters: zone.filters, title: zone.title });
-  if (path) zone.onPick(path, basename(path));
+  try {
+    const path = await pickFile({ filters: zone.filters, title: zone.title });
+    if (path) zone.onPick(path, basename(path));
+  } catch (err) {
+    console.error("file dialog failed:", err);
+    const label = $(`#${id} .file-name`);
+    if (label) label.textContent = `File dialog failed: ${err}`;
+  }
 }
 
 /**
