@@ -337,6 +337,17 @@ select {
     color: var(--text);
 }
 
+select optgroup {
+    color: #8f9baa;
+    font-style: normal;
+    font-weight: 600;
+}
+
+select option {
+    color: #edf2f7;
+    font-weight: 400;
+}
+
 input:focus,
 select:focus {
     border-color: #477fcf;
@@ -618,6 +629,11 @@ select:focus {
     border: 1px solid var(--border);
     border-radius: 10px;
     background: #12181e;
+}
+
+.controller-art {
+    width: 200px;
+    height: 140px;
 }
 
 .gamepad {

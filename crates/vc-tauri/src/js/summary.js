@@ -1,6 +1,7 @@
 import { $ } from "./dom.js";
 import { escapeHtml } from "./dom.js";
 import { state } from "./state.js";
+import { updateControllerPreview } from "./controllerPreview.js";
 
 /** Refresh every summary/preview element from current wizard state. Called after any field changes. */
 export function updateSummary() {
@@ -17,6 +18,7 @@ export function updateSummary() {
   $("#summary-title").textContent = title;
   $("#summary-id").textContent = id;
   $("#summary-controller").textContent = controller;
+  updateControllerPreview();
 
   $("#preview-title").textContent = title;
   $("#preview-system").textContent = system;

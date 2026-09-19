@@ -5,6 +5,28 @@ import { state } from "./state.js";
 import { registerDropzone } from "./dropzones.js";
 import { updateSummary } from "./summary.js";
 
+// Dropdown groups, in display order. `source` matches CoreSummary.source from
+// the backend: "donor" cores are the official emulator (ripped from a WAD the
+// user owns) with the ROM swapped; "bundled" cores are this project's own,
+// unofficial emulator DOLs.
+const CORE_GROUPS = [
+  { source: "donor", label: "Official \u2014 ROM swap (needs donor WAD)" },
+  { source: "bundled", label: "Unofficial \u2014 bundled core" },
+];
+
+const sourceOf = (c) => c.source ?? (c.donor_label ? "donor" : "bundled");
+
+/** Build the <select> markup: one <optgroup> per source type, skipping empty groups. */
+function renderCoreOptions(cores) {
+  return CORE_GROUPS.map(({ source, label }) => {
+    const options = cores
+      .filter((c) => sourceOf(c) === source)
+      .map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.system || c.id)} \u2014 ${escapeHtml(c.id)}</option>`)
+      .join("");
+    return options ? `<optgroup label="${escapeHtml(label)}">${options}</optgroup>` : "";
+  }).join("");
+}
+
 /** Load the core registry (via the `list_cores` Tauri command) and populate the core <select>. */
 export async function loadCores() {
   const registryPath = $("#registry-path").value || "cores/registry.json";
@@ -27,6 +49,7 @@ export async function loadCores() {
         id: "nes",
         system: "NES",
         valid_extensions: ["nes"],
+        source: "donor",
         donor_label:
           "Any legitimately-owned NES Virtual Console title (donor-sourced core).",
       },
@@ -35,9 +58,9 @@ export async function loadCores() {
   state.cores = cores;
 
   const select = $("#core");
-  select.innerHTML = cores
-    .map((c) => `<option value="${escapeHtml(c.id)}">${escapeHtml(c.system || c.id)} — ${escapeHtml(c.id)}</option>`)
-    .join("");
+  const previous = select.value;
+  select.innerHTML = renderCoreOptions(cores);
+  if (cores.some((c) => c.id === previous)) select.value = previous;
   $("#core-count").textContent = cores.length;
 
   updateCoreRequirements();

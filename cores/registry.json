@@ -4,9 +4,9 @@
     "id": "nes",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 78, 69, 83, 65],
+      "title_id": [0, 1, 0, 1, 70, 65, 71, 69],
       "dol_content_index": 0,
-      "donor_label": "Any legitimately-owned NES Virtual Console title, US region (verified against Super Mario Bros.). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Super Mario Bros. (NES Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
     },
     "valid_extensions": ["nes"],
     "header_size": null,
@@ -23,9 +23,424 @@
           "Left": "wiimote_dpad_left",
           "Right": "wiimote_dpad_right"
         }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
       }
     ],
     "title_id_prefix": [0, 1, 0, 1],
-    "ios_version": 58
+    "ios_version": 58,
+    "notes": "Donor pinned to Super Mario Bros. (US); title id FAGE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD."
+  },
+  {
+    "system": "SNES",
+    "id": "snes",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 74, 65, 65, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Super Mario World (SNES Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["sfc", "smc"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "X": "classic_x",
+          "Y": "classic_y",
+          "L": "classic_l",
+          "R": "classic_r",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Super Mario World (US); title id JAAE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. header_size is null because it strips bytes unconditionally; headered .smc dumps need a conditional strip (512 bytes) once rom.rs supports it."
+  },
+  {
+    "system": "Nintendo 64",
+    "id": "n64",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 78, 65, 65, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Super Mario 64 (Nintendo 64 Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["z64"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Start": "classic_plus",
+          "Z": "classic_zl",
+          "L": "classic_l",
+          "R": "classic_r",
+          "Stick": "classic_lstick",
+          "C-Up": "classic_rstick_up",
+          "C-Down": "classic_rstick_down",
+          "C-Left": "classic_rstick_left",
+          "C-Right": "classic_rstick_right",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Super Mario 64 (US); title id NAAE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Only big-endian .z64 is accepted; add n64/v64 once rom.rs implements byteswapping."
+  },
+  {
+    "system": "Sega Master System",
+    "id": "sms",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 76, 65, 69, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Alex Kidd in Miracle World (Master System Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["sms"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "Button 1": "wiimote_2",
+          "Button 2": "wiimote_1",
+          "Pause": "wiimote_plus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "Button 1": "classic_b",
+          "Button 2": "classic_a",
+          "Pause": "classic_plus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Alex Kidd in Miracle World (US); title id LAEE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD."
+  },
+  {
+    "system": "Sega Genesis",
+    "id": "genesis",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 77, 65, 72, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Sonic the Hedgehog (Genesis Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["md", "gen", "bin"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_y",
+          "B": "classic_b",
+          "C": "classic_a",
+          "X": "classic_l",
+          "Y": "classic_x",
+          "Z": "classic_r",
+          "Start": "classic_plus",
+          "Mode": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Sonic the Hedgehog (US); title id MAHE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Interleaved .smd dumps are not accepted (would need de-interleaving)."
+  },
+  {
+    "system": "TurboGrafx-16",
+    "id": "tg16",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 80, 65, 66, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Bonk's Adventure (TurboGrafx-16 Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["pce"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "II": "wiimote_2",
+          "I": "wiimote_1",
+          "Run": "wiimote_plus",
+          "Select": "wiimote_minus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "II": "classic_a",
+          "I": "classic_b",
+          "Run": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Bonk's Adventure (US); title id PABE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD."
+  },
+  {
+    "system": "TurboGrafx-CD",
+    "id": "tgcd",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 81, 65, 71, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Gate of Thunder (TurboGrafx-CD Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["cue", "iso"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "II": "wiimote_2",
+          "I": "wiimote_1",
+          "Run": "wiimote_plus",
+          "Select": "wiimote_minus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "II": "classic_a",
+          "I": "classic_b",
+          "Run": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Gate of Thunder (US); title id QAGE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. CD-based: disc images are multi-file/multi-track, which the single-file ROM pipeline does not handle yet."
+  },
+  {
+    "system": "Neo Geo",
+    "id": "neogeo",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 69, 65, 69, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Samurai Shodown (Neo Geo Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["zip"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_b",
+          "B": "classic_a",
+          "C": "classic_y",
+          "D": "classic_x",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Samurai Shodown (US); title id EAEE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Extension is a guess (MAME-style romset zip); the BIOS handling is not defined yet."
+  },
+  {
+    "system": "Commodore 64",
+    "id": "c64",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 67, 57, 53, 80],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Impossible Mission (Commodore 64 Virtual Console, Europe region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["d64", "prg", "crt"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "Fire": "wiimote_2",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "Fire": "classic_b",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Impossible Mission (Europe); title id C95P per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Europe-region donor (the C64 Virtual Console launched in Europe first); extensions are a guess."
+  },
+  {
+    "system": "MSX",
+    "id": "msx",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 88, 65, 70, 74],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Metal Gear (MSX Virtual Console, Japan region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["rom", "mx1", "mx2"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Metal Gear (Japan); title id XAFJ per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. MSX Virtual Console was Japan-only; extensions are a guess."
+  },
+  {
+    "system": "Virtual Console Arcade",
+    "id": "arcade",
+    "core_source": {
+      "kind": "donor",
+      "title_id": [0, 1, 0, 1, 69, 54, 50, 69],
+      "dol_content_index": 0,
+      "donor_label": "Requires your own legitimately-owned copy of Space Harrier (Arcade Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+    },
+    "valid_extensions": ["zip"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "Coin": "classic_minus",
+          "Start": "classic_plus",
+          "Button 1": "classic_b",
+          "Button 2": "classic_a",
+          "Button 3": "classic_y",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "Donor pinned to Space Harrier (US); title id E62E per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Region of this donor is unverified; arcade titles use per-game romsets, extension is a guess."
+  },
+  {
+    "system": "Game Boy (example)",
+    "id": "gb",
+    "core_source": {
+      "kind": "bundled",
+      "dol_path": "gb/example-gb-core.dol"
+    },
+    "valid_extensions": ["gb", "gbc"],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "A": "wiimote_2",
+          "B": "wiimote_1",
+          "Start": "wiimote_plus",
+          "Select": "wiimote_minus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [0, 1, 0, 1],
+    "ios_version": 58,
+    "notes": "EXAMPLE ONLY - a fake entry showing an unofficial, bundled core. There was no official Game Boy Virtual Console on the Wii, and cores/gb/example-gb-core.dol does not exist; point dol_path at a DOL this project owns/builds itself. dol_path is resolved relative to this file. ios_version is an unverified placeholder."
   }
 ]

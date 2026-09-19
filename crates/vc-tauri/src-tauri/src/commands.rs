@@ -16,6 +16,10 @@ pub struct CoreSummary {
     system: String,
     /// File extensions the ROM picker should filter on (e.g. ["nes"]).
     valid_extensions: Vec<String>,
+    /// "donor" = official emulator core ripped from a user-supplied
+    /// official WAD (ROM swap); "bundled" = a DOL this project ships itself
+    /// (unofficial). The UI groups the core dropdown on this.
+    source: &'static str,
     /// Present when the core needs a user-supplied donor WAD; the
     /// frontend should prompt for one (and for the keys file) before
     /// calling build_wad_command.
@@ -61,14 +65,15 @@ pub fn list_cores(registry_path: String) -> Result<Vec<CoreSummary>, String> {
     Ok(cores
         .into_iter()
         .map(|c: CoreDefinition| {
-            let donor_label = match &c.core_source {
-                CoreSource::Donor { donor_label, .. } => Some(donor_label.clone()),
-                CoreSource::Bundled { .. } => None,
+            let (source, donor_label) = match &c.core_source {
+                CoreSource::Donor { donor_label, .. } => ("donor", Some(donor_label.clone())),
+                CoreSource::Bundled { .. } => ("bundled", None),
             };
             CoreSummary {
                 id: c.id,
                 system: c.system,
                 valid_extensions: c.valid_extensions,
+                source,
                 donor_label,
             }
         })
