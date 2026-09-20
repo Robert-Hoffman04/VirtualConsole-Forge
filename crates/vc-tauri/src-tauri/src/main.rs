@@ -8,6 +8,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             commands::list_cores,
             commands::build_wad_command,
+            commands::build_forwarder_command,
             commands::preview_core_config,
         ])
         .run(tauri::generate_context!())

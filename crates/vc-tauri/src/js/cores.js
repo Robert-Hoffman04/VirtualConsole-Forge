@@ -5,6 +5,7 @@ import { state } from "./state.js";
 import { registerDropzone } from "./dropzones.js";
 import { updateSummary } from "./summary.js";
 import { refreshConfiguration } from "./configuration.js";
+import { onRomPicked, updateForwarderUi } from "./forwarder.js";
 
 // Dropdown groups, in display order. `source` matches CoreSummary.source from
 // the backend: "donor" cores are the official emulator (ripped from a WAD the
@@ -80,6 +81,7 @@ export function updateCoreRequirements() {
   const core = state.cores.find((c) => c.id === $("#core").value);
 
   refreshConfiguration(); // each system has its own buttons and options
+  updateForwarderUi(); // forwarder mode only works with some cores
 
   registerDropzone("rom-drop", {
     filters: core?.valid_extensions?.length
@@ -89,6 +91,7 @@ export function updateCoreRequirements() {
     onPick: (path, name) => {
       state.rom = { path, name };
       $("#rom-name").textContent = name;
+      onRomPicked(name);
       updateSummary();
     },
   });

@@ -10,6 +10,7 @@ import { initControllerPicker, updatePickerHint } from "./mapping.js";
 import { initCoreOptions } from "./coreOptions.js";
 import { onOptionsChanged, onDevicesChanged } from "./configuration.js";
 import { initConfigPreview } from "./configPreview.js";
+import { initForwarder } from "./forwarder.js";
 
 (async function init() {
   initStepper();
@@ -21,6 +22,7 @@ import { initConfigPreview } from "./configPreview.js";
   initControllerPicker({ onChange: onDevicesChanged });
   initCoreOptions({ onChange: onOptionsChanged });
   initConfigPreview();
+  initForwarder();
 
   // Registers the window-level listener that makes drag-and-drop onto any
   // .dropzone actually resolve to a real filesystem path -- see

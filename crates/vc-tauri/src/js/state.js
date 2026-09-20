@@ -4,6 +4,8 @@
 
 export const state = {
   step: 0,
+  mode: "standard", // "standard" (ROM + core inside the WAD) | "forwarder" (launched from SD/USB)
+  forwarder: { device: "sd" }, // storage device the core and ROM live on in forwarder mode
   cores: [],
   rom: null, // { path, name }
   cover: null, // { path, name }

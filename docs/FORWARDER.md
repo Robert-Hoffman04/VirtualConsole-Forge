@@ -99,6 +99,29 @@ VC emulators never read a launch image, so `--forwarder` refuses them (11 of the
 regular `build_wad` path. Whether donor systems get a forwarder story at all is
 an open decision.
 
+## Desktop app
+
+The Source step has a **Build mode** choice: *Standard* (the usual build) or *Forwarder*.
+In forwarder mode:
+
+- **Storage device** (SD card or USB drive) and **ROM location on the device** (e.g.
+  `/vcforge/roms/game.gb`) are asked for. Picking a local ROM file is optional; if you do,
+  its file name pre-fills the device path (unless you already typed one). The ROM is never
+  read or embedded.
+- **Core location on the device** is optional and defaults to `/vcforge/cores/<core id>.dol`.
+- The Build step gains the **loader DOL** (default `forwarder/prebuilt/main.dol`) and an
+  optional **launch.cfg** path to save a copy. The controllers, bindings and options chosen
+  on the Configuration step become the core config JSON carried in `launch.cfg`, exactly as
+  `vc-cli --forwarder` does; the **Core config file** preview shows it.
+- Official (donor-sourced) cores stay selectable but are explained and refused, since they
+  can't read a launch image. Only unofficial cores can be forwarded.
+- After a successful build the status lists what to copy onto the device (core DOL and ROM
+  paths), as the CLI does. Nothing is copied automatically.
+
+Backend: the `build_forwarder_command` Tauri command (same steps and order as
+`vc-cli --forwarder`: `launch.cfg` is saved before the WAD stage, so it survives the
+unfinished parts), and `list_cores` reports `forwardable` and `forwarder_core_path` per core.
+
 ## Building and testing
 
 ```
@@ -139,6 +162,7 @@ cargo test -p vc-core
   `launch.cfg` independently of those.
 - Content 0 = banner / boot index 1 is my reading of the channel WAD
   convention; confirm against a reference channel WAD.
-- The GUI (`vc-tauri`) is not wired to forwarder mode, and was not rebuilt.
+- The desktop app's forwarder mode (below) has been compiled and exercised against a
+  stand-in backend, but not run end to end: the WAD stage it calls is the unfinished one.
 - Nothing copies the core DOL or ROM onto the SD card yet; `vc-cli` only prints
   where they must go.

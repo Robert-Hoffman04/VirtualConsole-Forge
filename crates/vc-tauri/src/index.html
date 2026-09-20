@@ -66,7 +66,27 @@
                 <div class="panel-body">
                   <div class="form-grid">
                     <div class="field full">
-                      <label>ROM File <span class="hint">Required</span></label>
+                      <label id="mode-label">Build mode</label>
+                      <div class="controller-picker" id="mode-picker" role="radiogroup" aria-labelledby="mode-label">
+                        <label class="check-card checked" data-mode="standard">
+                          <input type="radio" name="build-mode" value="standard" checked>
+                          <span class="check-card-text">
+                            <span class="check-card-title">Standard</span>
+                            <span class="check-card-blurb">The ROM (and the emulator, for official cores) is packed inside the WAD.</span>
+                          </span>
+                        </label>
+                        <label class="check-card" data-mode="forwarder">
+                          <input type="radio" name="build-mode" value="forwarder">
+                          <span class="check-card-text">
+                            <span class="check-card-title">Forwarder</span>
+                            <span class="check-card-blurb">A small WAD that launches your core and ROM from the SD card or USB drive. Unofficial cores only.</span>
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div class="field full">
+                      <label>ROM File <span class="hint" id="rom-hint">Required</span></label>
                       <div class="dropzone" id="rom-drop">
                         <div>
                           <div class="drop-icon">⇩</div>
@@ -106,6 +126,34 @@
                         <button class="button" id="check-id-inline">Check</button>
                       </div>
                     </div>
+                  </div>
+
+                  <div class="forwarder-only forwarder-fields" id="forwarder-fields" hidden>
+                    <div class="side-heading">Forwarder settings</div>
+                    <div class="form-grid">
+                      <div class="field">
+                        <label id="device-label">Storage device</label>
+                        <div class="controller-picker compact" id="device-picker" role="radiogroup" aria-labelledby="device-label">
+                          <label class="check-card checked" data-device="sd">
+                            <input type="radio" name="forwarder-device" value="sd" checked>
+                            <span class="check-card-text"><span class="check-card-title">SD card</span></span>
+                          </label>
+                          <label class="check-card" data-device="usb">
+                            <input type="radio" name="forwarder-device" value="usb">
+                            <span class="check-card-text"><span class="check-card-title">USB drive</span></span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="field">
+                        <label for="device-rom">ROM location on the device</label>
+                        <input id="device-rom" placeholder="/vcforge/roms/game.gb">
+                      </div>
+                      <div class="field full">
+                        <label for="device-core">Core location on the device <span class="hint">Optional</span></label>
+                        <input id="device-core" placeholder="/vcforge/cores/&lt;core&gt;.dol">
+                      </div>
+                    </div>
+                    <div class="validation warning" id="forwarder-warning" hidden><span>!</span><span></span></div>
                   </div>
 
                   <div class="validation" id="source-validation">
@@ -226,6 +274,8 @@
                 </div>
                 <div class="panel-body">
                   <div class="checklist">
+                    <div class="check-row"><span class="check-name">Mode</span><span class="check-value"
+                        id="build-mode">Standard <span class="check">✓</span></span></div>
                     <div class="check-row"><span class="check-name">ROM File</span><span class="check-value"
                         id="build-rom">— <span class="check">✓</span></span></div>
                     <div class="check-row"><span class="check-name">Core</span><span class="check-value"
@@ -261,6 +311,19 @@
                   </div>
                   <div class="panel-description" style="margin-top:8px">The generated WAD is an output artifact; it is
                     not added to an application library.</div>
+                </div>
+                <div class="forwarder-only" id="forwarder-output-fields" hidden>
+                  <div class="side-heading">Forwarder loader</div>
+                  <div class="inline">
+                    <input id="loader-path" value="forwarder/prebuilt/main.dol">
+                    <button class="button" id="browse-loader">Browse</button>
+                  </div>
+                  <div class="panel-description" style="margin-top:8px">The generic loader (<code>make -C forwarder install</code>).</div>
+                  <div class="side-heading" style="margin-top:16px">launch.cfg <span class="hint">Optional</span></div>
+                  <div class="inline">
+                    <input id="launch-cfg-path" placeholder="Also save launch.cfg here">
+                    <button class="button" id="browse-launch-cfg">Browse</button>
+                  </div>
                 </div>
                 <button class="button primary build-button" id="build-button">⚒ Build WAD</button>
               </aside>

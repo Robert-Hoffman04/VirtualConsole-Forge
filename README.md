@@ -53,6 +53,7 @@ docs/         design notes
 | `mapping.js`, `mappingData.js` | controller checkboxes and one binding panel per enabled controller (data helpers are DOM-free) |
 | `coreOptions.js`, `coreOptionsData.js` | the per-core "Core Options" panel built from the registry's `options` (data helpers are DOM-free) |
 | `configuration.js` | entry points that rebuild the Configuration step when the core, the enabled controllers or an option changes |
+| `forwarder.js` | build mode picker and forwarder settings (device, ROM/core locations on the device, loader) |
 | `configPreview.js` | Build-step preview of the core config file, produced by the backend |
 | `controllerPreview.js` | one inline-SVG illustration per controller, drawn by each controller's panel and checkbox card |
 | `summary.js` | keeps every summary/preview element in sync with state |

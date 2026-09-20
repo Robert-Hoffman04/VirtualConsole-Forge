@@ -96,6 +96,17 @@ struct Args {
     launch_cfg_out: Option<PathBuf>,
 }
 
+/// The controllers enabled with `--controller` (default: classic_controller),
+/// each with the core's default bindings. Shared by the normal and forwarder builds.
+fn device_setups(args: &Args) -> Result<Vec<DeviceSetup>, Box<dyn std::error::Error>> {
+    let devices: Vec<InputDevice> = if args.controllers.is_empty() {
+        vec![InputDevice::ClassicController]
+    } else {
+        args.controllers.iter().map(|c| c.parse()).collect::<Result<_, String>>()?
+    };
+    Ok(devices.into_iter().map(|device| DeviceSetup { device, mapping: None }).collect())
+}
+
 // Placeholder title id / title key allocation — real version tracks
 // allocated ids in a local database to avoid collisions across builds.
 const PLACEHOLDER_TITLE_ID: [u8; 8] = [0x00, 0x01, 0x00, 0x01, 0xDE, 0xAD, 0xBE, 0xEF];
@@ -118,7 +129,7 @@ fn run_forwarder(
     };
 
     let option_values = parse_option_args(core, &args.opts)?;
-    let core_config = build_core_config(core, InputDevice::ClassicController, None, &option_values)?;
+    let core_config = build_core_config(core, &device_setups(args)?, &option_values)?;
     if let Some(path) = &args.config_out {
         std::fs::write(path, core_config.to_json())?;
         println!("wrote core config to {}", path.display());
@@ -188,12 +199,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let title_key: [u8; 16] = [0u8; 16];
 
     let option_values = parse_option_args(core, &args.opts)?;
-    let devices: Vec<InputDevice> = if args.controllers.is_empty() {
-        vec![InputDevice::ClassicController]
-    } else {
-        args.controllers.iter().map(|c| c.parse()).collect::<Result<_, String>>()?
-    };
-    let setups: Vec<DeviceSetup> = devices.iter().map(|&device| DeviceSetup { device, mapping: None }).collect();
+    let setups = device_setups(&args)?;
     let core_config = build_core_config(core, &setups, &option_values)?;
     if let Some(path) = &args.config_out {
         std::fs::write(path, core_config.to_json())?;
@@ -202,7 +208,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = VcConfig {
         console_id: 0,
-        input_device: InputDeviceId::from(devices[0]),
+        input_device: InputDeviceId::from(setups[0].device),
         button_map: [0u8; 16],
         save_target: SaveTarget::NandSavePartition,
         video_mode: 0,
