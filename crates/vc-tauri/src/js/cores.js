@@ -4,6 +4,7 @@ import { invoke } from "./tauri.js";
 import { state } from "./state.js";
 import { registerDropzone } from "./dropzones.js";
 import { updateSummary } from "./summary.js";
+import { refreshConfiguration } from "./configuration.js";
 
 // Dropdown groups, in display order. `source` matches CoreSummary.source from
 // the backend: "donor" cores are the official emulator (ripped from a WAD the
@@ -77,6 +78,8 @@ function showError(message) {
 /** Rebuild the ROM dropzone's filter and the donor/keys fields for the currently selected core. */
 export function updateCoreRequirements() {
   const core = state.cores.find((c) => c.id === $("#core").value);
+
+  refreshConfiguration(); // each system has its own buttons and options
 
   registerDropzone("rom-drop", {
     filters: core?.valid_extensions?.length

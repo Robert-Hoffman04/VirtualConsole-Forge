@@ -14,6 +14,15 @@ pub enum VcError {
     #[error("ROM validation failed: {0}")]
     InvalidRom(String),
 
+    #[error("invalid registry entry: {0}")]
+    InvalidRegistry(String),
+
+    #[error("invalid core option: {0}")]
+    InvalidOption(String),
+
+    #[error("invalid button mapping: {0}")]
+    InvalidMapping(String),
+
     #[error("config blob malformed: {0}")]
     InvalidConfig(String),
 

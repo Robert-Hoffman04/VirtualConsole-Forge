@@ -1,0 +1,33 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "tgcd",
+    "system": "TurboGrafx-CD"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "Down": "classic_dpad_down",
+      "I": "classic_b",
+      "II": "classic_a",
+      "Left": "classic_dpad_left",
+      "Right": "classic_dpad_right",
+      "Run": "classic_plus",
+      "Select": "classic_minus",
+      "Up": "classic_dpad_up"
+    },
+    "ports": {},
+    "six_button": false
+  },
+  "video": {},
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {
+    "multitap": false
+  },
+  "extra": {
+    "system_card": "super_system_card"
+  }
+}

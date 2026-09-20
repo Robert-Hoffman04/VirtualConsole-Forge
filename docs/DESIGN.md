@@ -193,3 +193,21 @@ in the README for the scope tradeoff there).
   note before this can be wired up properly.
 - Donor "any title of this system" acceptance via an allow-listed hash
   set, instead of pinning to one exact donor title id (see note above).
+## Core options and the core config file
+
+Per-core settings (`options`), button bindings and the buttons that depend on
+them are written to one JSON file that the emulator core reads. The format,
+its standard keys and the rules for adding options are documented in
+[CONFIG_FORMAT.md](CONFIG_FORMAT.md). In short:
+
+- The registry describes each option (`kind`, `default`, `choices`, ...) and
+  where it lands (`key`, a standard key or `extra.<id>`). The Configuration
+  step builds its "Core Options" panel and the button rows from that, so a new
+  option is a registry edit only.
+- `vc-core::options` validates definitions at load time and resolves the
+  user's values (inapplicable options fall back to their default).
+- `vc-core::coreconfig::build_core_config` assembles the document.
+  `build_wad` embeds it as content 3 for bundled cores; donor (official VC)
+  builds keep the legacy `VcConfig` blob untouched.
+- The frontend mirrors the applicability rules in `coreOptionsData.js`, and the
+  Build step previews the exact file via the `preview_core_config` command.

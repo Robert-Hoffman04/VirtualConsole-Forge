@@ -1,0 +1,38 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "nds",
+    "system": "Nintendo DS (example)"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "A": "classic_a",
+      "B": "classic_b",
+      "Down": "classic_dpad_down",
+      "L": "classic_l",
+      "Left": "classic_dpad_left",
+      "R": "classic_r",
+      "Right": "classic_dpad_right",
+      "Select": "classic_minus",
+      "Start": "classic_plus",
+      "Up": "classic_dpad_up",
+      "X": "classic_x",
+      "Y": "classic_y"
+    },
+    "ports": {},
+    "rumble_strength": 60
+  },
+  "video": {
+    "layout": "stacked"
+  },
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {},
+  "extra": {
+    "slot2": "none",
+    "touch_input": "right_stick"
+  }
+}

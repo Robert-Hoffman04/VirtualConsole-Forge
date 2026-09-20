@@ -22,6 +22,11 @@ pub struct WadBuildRequest<'a> {
     pub cover_art: Option<&'a [u8]>,
     pub title: String,
     pub config: VcConfig,
+    /// The unified core config file (see `coreconfig`). When present it
+    /// replaces the binary `config` blob as content 3, which is what bundled
+    /// (non-official) cores read. `None` keeps the legacy blob, so donor
+    /// (official Virtual Console) builds are unchanged.
+    pub core_config: Option<Vec<u8>>,
     /// 8-byte title id; typically derived from `core.title_id_prefix` plus
     /// an allocated suffix, done by the caller so it can track collisions
     /// across multiple builds.
@@ -58,7 +63,10 @@ pub fn build_wad(req: WadBuildRequest) -> Result<Vec<u8>, VcError> {
         title: req.title.clone(),
     })?;
 
-    let config_bytes = req.config.to_bytes().to_vec();
+    let config_bytes = req
+        .core_config
+        .clone()
+        .unwrap_or_else(|| req.config.to_bytes().to_vec());
 
     let dol_bytes = match &req.core.core_source {
         CoreSource::Bundled { dol_path } => fs::read(dol_path)?,

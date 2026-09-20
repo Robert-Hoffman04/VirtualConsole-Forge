@@ -1,0 +1,49 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "n64",
+    "system": "Nintendo 64"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "Down": "classic_dpad_down",
+      "L": "classic_l",
+      "Left": "classic_dpad_left",
+      "Right": "classic_dpad_right",
+      "Start": "classic_plus",
+      "Stick": "classic_lstick",
+      "Up": "classic_dpad_up",
+      "Z": "classic_zl"
+    },
+    "ports": {
+      "2": {
+        "buttons": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "C-Left": "classic_y",
+          "C-Up": "classic_x",
+          "R": "classic_r",
+          "Stick": "classic_rstick",
+          "Z": "classic_zr"
+        }
+      }
+    },
+    "dual_controller": true,
+    "rumble_strength": 50
+  },
+  "video": {
+    "filter": "smooth"
+  },
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {
+    "expansion_ram": false
+  },
+  "extra": {
+    "pak": "none",
+    "pak2": "controller_pak"
+  }
+}

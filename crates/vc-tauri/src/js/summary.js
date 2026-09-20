@@ -2,6 +2,7 @@ import { $ } from "./dom.js";
 import { escapeHtml } from "./dom.js";
 import { state } from "./state.js";
 import { updateControllerPreview } from "./controllerPreview.js";
+import { summarizeOptions } from "./coreOptionsData.js";
 
 /** Refresh every summary/preview element from current wizard state. Called after any field changes. */
 export function updateSummary() {
@@ -9,6 +10,7 @@ export function updateSummary() {
   const core = state.cores.find((c) => c.id === $("#core").value);
   const system = core?.system || "—";
   const controller = $("#controller").selectedOptions[0]?.text || "—";
+  const options = core ? summarizeOptions(core, $("#controller").value, state.options.values) : "—";
   const rom = state.rom?.name || "—";
   const id = $("#title-id").value || "—";
 
@@ -18,6 +20,7 @@ export function updateSummary() {
   $("#summary-title").textContent = title;
   $("#summary-id").textContent = id;
   $("#summary-controller").textContent = controller;
+  $("#summary-options").textContent = options;
   updateControllerPreview();
 
   $("#preview-title").textContent = title;
@@ -30,6 +33,7 @@ export function updateSummary() {
   $("#build-title").innerHTML = `${escapeHtml(title)} <span class="check">✓</span>`;
   $("#build-id").innerHTML = `${escapeHtml(id)} <span class="check">✓</span>`;
   $("#build-controller").innerHTML = `${escapeHtml(controller)} <span class="check">✓</span>`;
+  $("#build-options").innerHTML = `${escapeHtml(options)} <span class="check">✓</span>`;
   $("#build-cover").innerHTML = state.cover
     ? `${escapeHtml(state.cover.name)} <span class="check">✓</span>`
     : "Not supplied";

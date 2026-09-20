@@ -1,0 +1,29 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "msx",
+    "system": "MSX"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "A": "classic_a",
+      "B": "classic_b",
+      "Down": "classic_dpad_down",
+      "Left": "classic_dpad_left",
+      "Right": "classic_dpad_right",
+      "Up": "classic_dpad_up"
+    },
+    "ports": {}
+  },
+  "video": {},
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {},
+  "extra": {
+    "generation": "msx1",
+    "ram": "64"
+  }
+}

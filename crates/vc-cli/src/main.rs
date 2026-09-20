@@ -2,7 +2,9 @@ use clap::Parser;
 use std::path::PathBuf;
 use vc_core::config::{InputDeviceId, SaveTarget, VcConfig};
 use vc_core::donor::KeyProvider;
-use vc_core::registry::{find_core, load_registry, CoreSource};
+use vc_core::coreconfig::build_core_config;
+use vc_core::options::parse_option_args;
+use vc_core::registry::{find_core, load_registry, CoreSource, InputDevice};
 use vc_core::wad::{build_wad, WadBuildRequest};
 
 /// Build a channel-style WAD from a ROM and a registered core.
@@ -44,6 +46,17 @@ struct Args {
     /// default or built-in value — see `donor::KeyProvider`.
     #[arg(long)]
     keys: Option<PathBuf>,
+
+    /// Core-specific option as ID=VALUE; repeat for several, e.g.
+    /// `--opt expansion_pak=true --opt pak=rumble_pak`. Valid ids/values are
+    /// the `options` listed for the core in the registry.
+    #[arg(long = "opt", value_name = "ID=VALUE")]
+    opts: Vec<String>,
+
+    /// Also write the unified core config file (JSON) to this path. Bundled
+    /// (non-official) cores get this file embedded in the WAD as content 3.
+    #[arg(long, value_name = "PATH")]
+    config_out: Option<PathBuf>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -72,6 +85,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let title_id: [u8; 8] = [0x00, 0x01, 0x00, 0x01, 0xDE, 0xAD, 0xBE, 0xEF];
     let title_key: [u8; 16] = [0u8; 16];
 
+    let option_values = parse_option_args(core, &args.opts)?;
+    let core_config = build_core_config(core, InputDevice::ClassicController, None, &option_values)?;
+    if let Some(path) = &args.config_out {
+        std::fs::write(path, core_config.to_json())?;
+        println!("wrote core config to {}", path.display());
+    }
+
     let config = VcConfig {
         console_id: 0,
         input_device: InputDeviceId::ClassicController,
@@ -86,6 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         cover_art: cover_bytes.as_deref(),
         title: args.title,
         config,
+        core_config: matches!(core.core_source, CoreSource::Bundled { .. }).then(|| core_config.to_bytes()),
         title_id,
         title_key,
         donor_wad_path: args.donor.as_deref(),

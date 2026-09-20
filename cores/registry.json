@@ -4,11 +4,22 @@
     "id": "nes",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 70, 65, 71, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        70,
+        65,
+        71,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Super Mario Bros. (NES Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Super Mario Bros. (NES Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["nes"],
+    "valid_extensions": [
+      "nes"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -38,8 +49,32 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "crop_overscan",
+        "label": "Crop overscan",
+        "description": "Hide the top and bottom 8 scanlines that many TVs never displayed.",
+        "group": "Video",
+        "kind": "toggle",
+        "default": false,
+        "key": "video.crop_overscan"
+      },
+      {
+        "id": "no_sprite_limit",
+        "label": "Remove sprite-per-line limit",
+        "description": "Reduces flicker. A few games rely on the limit for effects.",
+        "group": "Compatibility",
+        "kind": "toggle",
+        "default": false
+      }
+    ],
     "notes": "Donor pinned to Super Mario Bros. (US); title id FAGE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD."
   },
   {
@@ -47,11 +82,23 @@
     "id": "snes",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 74, 65, 65, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        74,
+        65,
+        65,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Super Mario World (SNES Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Super Mario World (SNES Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["sfc", "smc"],
+    "valid_extensions": [
+      "sfc",
+      "smc"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -72,8 +119,42 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "video_timing",
+        "label": "Video timing",
+        "description": "Match the ROM's region so speed and music pitch are correct.",
+        "group": "Video",
+        "kind": "select",
+        "default": "ntsc",
+        "key": "video.timing",
+        "choices": [
+          {
+            "value": "ntsc",
+            "label": "NTSC (60 Hz)"
+          },
+          {
+            "value": "pal",
+            "label": "PAL (50 Hz)"
+          }
+        ]
+      },
+      {
+        "id": "crop_overscan",
+        "label": "Crop overscan (224 lines)",
+        "group": "Video",
+        "kind": "toggle",
+        "default": false,
+        "key": "video.crop_overscan"
+      }
+    ],
     "notes": "Donor pinned to Super Mario World (US); title id JAAE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. header_size is null because it strips bytes unconditionally; headered .smc dumps need a conditional strip (512 bytes) once rom.rs supports it."
   },
   {
@@ -81,15 +162,27 @@
     "id": "n64",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 78, 65, 65, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        78,
+        65,
+        65,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Super Mario 64 (Nintendo 64 Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Super Mario 64 (Nintendo 64 Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["z64"],
+    "valid_extensions": [
+      "z64"
+    ],
     "header_size": null,
     "default_mappings": [
       {
         "device": "classic_controller",
+        "port": 1,
         "map": {
           "A": "classic_a",
           "B": "classic_b",
@@ -107,10 +200,186 @@
           "Left": "classic_dpad_left",
           "Right": "classic_dpad_right"
         }
+      },
+      {
+        "device": "classic_controller",
+        "port": 1,
+        "when": {
+          "option": "dual_controller",
+          "equals": true
+        },
+        "map": {
+          "A": "",
+          "B": "",
+          "Start": "classic_plus",
+          "Z": "classic_zl",
+          "L": "classic_l",
+          "R": "",
+          "Stick": "classic_lstick",
+          "C-Up": "",
+          "C-Down": "",
+          "C-Left": "",
+          "C-Right": "",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "port": 2,
+        "when": {
+          "option": "dual_controller",
+          "equals": true
+        },
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Start": "",
+          "Z": "classic_zr",
+          "L": "",
+          "R": "classic_r",
+          "Stick": "classic_rstick",
+          "C-Up": "classic_x",
+          "C-Down": "",
+          "C-Left": "classic_y",
+          "C-Right": "",
+          "Up": "",
+          "Down": "",
+          "Left": "",
+          "Right": ""
+        }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "controller_ports": [
+      {
+        "port": 2,
+        "label": "Controller 2",
+        "when": {
+          "option": "dual_controller",
+          "equals": true
+        }
+      }
+    ],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "expansion_pak",
+        "label": "Expansion Pak (8 MB RAM)",
+        "description": "Some games require it (e.g. Donkey Kong 64); games that don't support it ignore it.",
+        "group": "Accessories",
+        "kind": "toggle",
+        "default": false,
+        "key": "accessories.expansion_ram"
+      },
+      {
+        "id": "pak",
+        "label": "Controller Pak slot",
+        "description": "Real hardware has one pak per controller, so these are mutually exclusive.",
+        "group": "Accessories",
+        "kind": "select",
+        "default": "none",
+        "choices": [
+          {
+            "value": "none",
+            "label": "Empty"
+          },
+          {
+            "value": "controller_pak",
+            "label": "Controller Pak (memory card)"
+          },
+          {
+            "value": "rumble_pak",
+            "label": "Rumble Pak"
+          }
+        ]
+      },
+      {
+        "id": "rumble_strength",
+        "label": "Rumble strength",
+        "description": "Only applies to controllers that can rumble.",
+        "group": "Accessories",
+        "kind": "number",
+        "default": 50,
+        "key": "input.rumble_strength",
+        "min": 0,
+        "max": 100,
+        "step": 10,
+        "unit": "%",
+        "devices": [
+          "wiimote_sideways",
+          "gamecube"
+        ],
+        "visible_when": {
+          "option": "pak",
+          "equals": "rumble_pak"
+        }
+      },
+      {
+        "id": "texture_filter",
+        "label": "Texture filtering",
+        "group": "Video",
+        "kind": "select",
+        "default": "smooth",
+        "key": "video.filter",
+        "choices": [
+          {
+            "value": "smooth",
+            "label": "Bilinear (accurate)"
+          },
+          {
+            "value": "sharp",
+            "label": "Nearest (sharp)"
+          }
+        ]
+      },
+      {
+        "id": "dual_controller",
+        "label": "Dual controller mode",
+        "description": "One controller drives N64 controllers 1 and 2: left stick and left-hand buttons on controller 1, right stick on controller 2. For games with a two-controller dual-analog scheme, such as GoldenEye 007 and Perfect Dark.",
+        "group": "Controller",
+        "kind": "toggle",
+        "default": false,
+        "key": "input.dual_controller",
+        "devices": [
+          "classic_controller",
+          "gamecube"
+        ]
+      },
+      {
+        "id": "pak2",
+        "label": "Controller 2 pak slot",
+        "description": "The pak in the second emulated controller.",
+        "group": "Accessories",
+        "kind": "select",
+        "default": "none",
+        "choices": [
+          {
+            "value": "none",
+            "label": "Empty"
+          },
+          {
+            "value": "controller_pak",
+            "label": "Controller Pak (memory card)"
+          },
+          {
+            "value": "rumble_pak",
+            "label": "Rumble Pak"
+          }
+        ],
+        "visible_when": {
+          "option": "dual_controller",
+          "equals": true
+        }
+      }
+    ],
     "notes": "Donor pinned to Super Mario 64 (US); title id NAAE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Only big-endian .z64 is accepted; add n64/v64 once rom.rs implements byteswapping."
   },
   {
@@ -118,11 +387,22 @@
     "id": "sms",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 76, 65, 69, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        76,
+        65,
+        69,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Alex Kidd in Miracle World (Master System Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Alex Kidd in Miracle World (Master System Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["sms"],
+    "valid_extensions": [
+      "sms"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -150,8 +430,46 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "region",
+        "label": "Console region",
+        "description": "Some games check the region.",
+        "group": "System",
+        "kind": "select",
+        "default": "us",
+        "key": "system.region",
+        "choices": [
+          {
+            "value": "us",
+            "label": "NTSC (US)"
+          },
+          {
+            "value": "eu",
+            "label": "PAL (Europe)"
+          },
+          {
+            "value": "jp",
+            "label": "NTSC (Japan)"
+          }
+        ]
+      },
+      {
+        "id": "fm_sound",
+        "label": "FM sound unit",
+        "description": "The Japanese Master System's FM add-on; supported games play upgraded music.",
+        "group": "Accessories",
+        "kind": "toggle",
+        "default": true
+      }
+    ],
     "notes": "Donor pinned to Alex Kidd in Miracle World (US); title id LAEE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD."
   },
   {
@@ -159,11 +477,24 @@
     "id": "genesis",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 77, 65, 72, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        77,
+        65,
+        72,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Sonic the Hedgehog (Genesis Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Sonic the Hedgehog (Genesis Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["md", "gen", "bin"],
+    "valid_extensions": [
+      "md",
+      "gen",
+      "bin"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -184,8 +515,74 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "button_requires": {
+      "X": {
+        "option": "six_button",
+        "equals": true
+      },
+      "Y": {
+        "option": "six_button",
+        "equals": true
+      },
+      "Z": {
+        "option": "six_button",
+        "equals": true
+      },
+      "Mode": {
+        "option": "six_button",
+        "equals": true
+      }
+    },
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "region",
+        "label": "Console region",
+        "description": "Some games check the region.",
+        "group": "System",
+        "kind": "select",
+        "default": "us",
+        "key": "system.region",
+        "choices": [
+          {
+            "value": "us",
+            "label": "Genesis (US)"
+          },
+          {
+            "value": "eu",
+            "label": "Mega Drive (Europe)"
+          },
+          {
+            "value": "jp",
+            "label": "Mega Drive (Japan)"
+          }
+        ]
+      },
+      {
+        "id": "audio_filter",
+        "label": "Low-pass audio filter",
+        "description": "Approximates the original console's softer sound output.",
+        "group": "Audio",
+        "kind": "toggle",
+        "default": true,
+        "key": "audio.filter"
+      },
+      {
+        "id": "six_button",
+        "label": "Six-button pad",
+        "description": "Adds the X, Y, Z and Mode buttons. Most games only use three buttons.",
+        "group": "Controller",
+        "kind": "toggle",
+        "default": false,
+        "key": "input.six_button"
+      }
+    ],
     "notes": "Donor pinned to Sonic the Hedgehog (US); title id MAHE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Interleaved .smd dumps are not accepted (would need de-interleaving)."
   },
   {
@@ -193,11 +590,22 @@
     "id": "tg16",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 80, 65, 66, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        80,
+        65,
+        66,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Bonk's Adventure (TurboGrafx-16 Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Bonk's Adventure (TurboGrafx-16 Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["pce"],
+    "valid_extensions": [
+      "pce"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -223,12 +631,67 @@
           "Up": "classic_dpad_up",
           "Down": "classic_dpad_down",
           "Left": "classic_dpad_left",
-          "Right": "classic_dpad_right"
+          "Right": "classic_dpad_right",
+          "III": "classic_y",
+          "IV": "classic_x",
+          "V": "classic_l",
+          "VI": "classic_r"
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "button_requires": {
+      "III": {
+        "option": "six_button",
+        "equals": true
+      },
+      "IV": {
+        "option": "six_button",
+        "equals": true
+      },
+      "V": {
+        "option": "six_button",
+        "equals": true
+      },
+      "VI": {
+        "option": "six_button",
+        "equals": true
+      }
+    },
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "turbo",
+        "label": "Turbo (auto-fire) on I and II",
+        "group": "Controller",
+        "kind": "toggle",
+        "default": false,
+        "key": "input.turbo"
+      },
+      {
+        "id": "multitap",
+        "label": "TurboTap (multiplayer adapter)",
+        "description": "Enables up to five players in supported games.",
+        "group": "Accessories",
+        "kind": "toggle",
+        "default": false,
+        "key": "accessories.multitap"
+      },
+      {
+        "id": "six_button",
+        "label": "Six-button pad",
+        "description": "Adds buttons III to VI (Avenue Pad 6). Most games only use two.",
+        "group": "Controller",
+        "kind": "toggle",
+        "default": false,
+        "key": "input.six_button"
+      }
+    ],
     "notes": "Donor pinned to Bonk's Adventure (US); title id PABE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD."
   },
   {
@@ -236,11 +699,23 @@
     "id": "tgcd",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 81, 65, 71, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        81,
+        65,
+        71,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Gate of Thunder (TurboGrafx-CD Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Gate of Thunder (TurboGrafx-CD Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["cue", "iso"],
+    "valid_extensions": [
+      "cue",
+      "iso"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -266,12 +741,80 @@
           "Up": "classic_dpad_up",
           "Down": "classic_dpad_down",
           "Left": "classic_dpad_left",
-          "Right": "classic_dpad_right"
+          "Right": "classic_dpad_right",
+          "III": "classic_y",
+          "IV": "classic_x",
+          "V": "classic_l",
+          "VI": "classic_r"
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "button_requires": {
+      "III": {
+        "option": "six_button",
+        "equals": true
+      },
+      "IV": {
+        "option": "six_button",
+        "equals": true
+      },
+      "V": {
+        "option": "six_button",
+        "equals": true
+      },
+      "VI": {
+        "option": "six_button",
+        "equals": true
+      }
+    },
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "system_card",
+        "label": "System Card",
+        "description": "Some CD games require a specific card to run.",
+        "group": "Accessories",
+        "kind": "select",
+        "default": "super_system_card",
+        "choices": [
+          {
+            "value": "system_card_2",
+            "label": "System Card 2.0"
+          },
+          {
+            "value": "super_system_card",
+            "label": "Super System Card 3.0"
+          },
+          {
+            "value": "arcade_card",
+            "label": "Arcade Card"
+          }
+        ]
+      },
+      {
+        "id": "multitap",
+        "label": "TurboTap (multiplayer adapter)",
+        "group": "Accessories",
+        "kind": "toggle",
+        "default": false,
+        "key": "accessories.multitap"
+      },
+      {
+        "id": "six_button",
+        "label": "Six-button pad",
+        "description": "Adds buttons III to VI (Avenue Pad 6). Most games only use two.",
+        "group": "Controller",
+        "kind": "toggle",
+        "default": false,
+        "key": "input.six_button"
+      }
+    ],
     "notes": "Donor pinned to Gate of Thunder (US); title id QAGE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. CD-based: disc images are multi-file/multi-track, which the single-file ROM pipeline does not handle yet."
   },
   {
@@ -279,11 +822,22 @@
     "id": "neogeo",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 69, 65, 69, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        69,
+        65,
+        69,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Samurai Shodown (Neo Geo Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Samurai Shodown (Neo Geo Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["zip"],
+    "valid_extensions": [
+      "zip"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -302,8 +856,56 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "mode",
+        "label": "System mode",
+        "group": "System",
+        "kind": "select",
+        "default": "aes",
+        "choices": [
+          {
+            "value": "aes",
+            "label": "AES (home console)"
+          },
+          {
+            "value": "mvs",
+            "label": "MVS (arcade cabinet)"
+          }
+        ]
+      },
+      {
+        "id": "mvs_credits",
+        "label": "Starting credits",
+        "description": "Credits inserted at boot in arcade mode.",
+        "group": "System",
+        "kind": "number",
+        "default": 3,
+        "min": 1,
+        "max": 9,
+        "step": 1,
+        "visible_when": {
+          "option": "mode",
+          "equals": "mvs"
+        }
+      },
+      {
+        "id": "memory_card",
+        "label": "Memory card",
+        "description": "Keeps save data between sessions.",
+        "group": "Accessories",
+        "kind": "toggle",
+        "default": true,
+        "key": "accessories.memory_card"
+      }
+    ],
     "notes": "Donor pinned to Samurai Shodown (US); title id EAEE per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Extension is a guess (MAME-style romset zip); the BIOS handling is not defined yet."
   },
   {
@@ -311,11 +913,24 @@
     "id": "c64",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 67, 57, 53, 80],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        67,
+        57,
+        53,
+        80
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Impossible Mission (Commodore 64 Virtual Console, Europe region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Impossible Mission (Commodore 64 Virtual Console, Europe region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["d64", "prg", "crt"],
+    "valid_extensions": [
+      "d64",
+      "prg",
+      "crt"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -339,8 +954,67 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "video_standard",
+        "label": "Video standard",
+        "group": "Video",
+        "kind": "select",
+        "default": "pal",
+        "key": "video.timing",
+        "choices": [
+          {
+            "value": "pal",
+            "label": "PAL"
+          },
+          {
+            "value": "ntsc",
+            "label": "NTSC"
+          }
+        ]
+      },
+      {
+        "id": "joystick_port",
+        "label": "Joystick port",
+        "description": "Most games expect port 2.",
+        "group": "Controller",
+        "kind": "select",
+        "default": "port_2",
+        "choices": [
+          {
+            "value": "port_1",
+            "label": "Port 1"
+          },
+          {
+            "value": "port_2",
+            "label": "Port 2"
+          }
+        ]
+      },
+      {
+        "id": "virtual_keyboard",
+        "label": "On-screen keyboard",
+        "description": "Lets you type on the C64 keyboard with the controller.",
+        "group": "Controller",
+        "kind": "toggle",
+        "default": true
+      },
+      {
+        "id": "true_drive",
+        "label": "True drive emulation",
+        "description": "More compatible with fast loaders, but slower to load.",
+        "group": "Compatibility",
+        "kind": "toggle",
+        "default": false
+      }
+    ],
     "notes": "Donor pinned to Impossible Mission (Europe); title id C95P per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Europe-region donor (the C64 Virtual Console launched in Europe first); extensions are a guess."
   },
   {
@@ -348,11 +1022,24 @@
     "id": "msx",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 88, 65, 70, 74],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        88,
+        65,
+        70,
+        74
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Metal Gear (MSX Virtual Console, Japan region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Metal Gear (MSX Virtual Console, Japan region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["rom", "mx1", "mx2"],
+    "valid_extensions": [
+      "rom",
+      "mx1",
+      "mx2"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -367,8 +1054,50 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "generation",
+        "label": "MSX generation",
+        "description": "Use MSX2 for titles that need the enhanced video chip.",
+        "group": "System",
+        "kind": "select",
+        "default": "msx1",
+        "choices": [
+          {
+            "value": "msx1",
+            "label": "MSX1"
+          },
+          {
+            "value": "msx2",
+            "label": "MSX2"
+          }
+        ]
+      },
+      {
+        "id": "ram",
+        "label": "RAM",
+        "group": "System",
+        "kind": "select",
+        "default": "64",
+        "choices": [
+          {
+            "value": "64",
+            "label": "64 KB"
+          },
+          {
+            "value": "128",
+            "label": "128 KB"
+          }
+        ]
+      }
+    ],
     "notes": "Donor pinned to Metal Gear (Japan); title id XAFJ per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. MSX Virtual Console was Japan-only; extensions are a guess."
   },
   {
@@ -376,11 +1105,22 @@
     "id": "arcade",
     "core_source": {
       "kind": "donor",
-      "title_id": [0, 1, 0, 1, 69, 54, 50, 69],
+      "title_id": [
+        0,
+        1,
+        0,
+        1,
+        69,
+        54,
+        50,
+        69
+      ],
       "dol_content_index": 0,
-      "donor_label": "Requires your own legitimately-owned copy of Space Harrier (Arcade Virtual Console, US region). You must own and supply this WAD yourself — it is never downloaded or bundled by this tool."
+      "donor_label": "Requires your own legitimately-owned copy of Space Harrier (Arcade Virtual Console, US region). You must own and supply this WAD yourself \u2014 it is never downloaded or bundled by this tool."
     },
-    "valid_extensions": ["zip"],
+    "valid_extensions": [
+      "zip"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -398,8 +1138,55 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "free_play",
+        "label": "Free play",
+        "description": "Skip the coin requirement.",
+        "group": "Cabinet settings",
+        "kind": "toggle",
+        "default": false
+      },
+      {
+        "id": "lives",
+        "label": "Lives per credit",
+        "description": "DIP switch setting; not every game honours it.",
+        "group": "Cabinet settings",
+        "kind": "number",
+        "default": 3,
+        "min": 1,
+        "max": 5,
+        "step": 1
+      },
+      {
+        "id": "difficulty",
+        "label": "Difficulty",
+        "group": "Cabinet settings",
+        "kind": "select",
+        "default": "normal",
+        "choices": [
+          {
+            "value": "easy",
+            "label": "Easy"
+          },
+          {
+            "value": "normal",
+            "label": "Normal"
+          },
+          {
+            "value": "hard",
+            "label": "Hard"
+          }
+        ]
+      }
+    ],
     "notes": "Donor pinned to Space Harrier (US); title id E62E per the WiiBrew Title Database. ios_version is an unverified placeholder - confirm against the donor's TMD. Region of this donor is unverified; arcade titles use per-game romsets, extension is a guess."
   },
   {
@@ -409,7 +1196,10 @@
       "kind": "bundled",
       "dol_path": "gb/example-gb-core.dol"
     },
-    "valid_extensions": ["gb", "gbc"],
+    "valid_extensions": [
+      "gb",
+      "gbc"
+    ],
     "header_size": null,
     "default_mappings": [
       {
@@ -439,8 +1229,367 @@
         }
       }
     ],
-    "title_id_prefix": [0, 1, 0, 1],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
     "ios_version": 58,
+    "options": [
+      {
+        "id": "palette",
+        "label": "Palette",
+        "group": "Video",
+        "kind": "select",
+        "default": "dmg_green",
+        "key": "video.palette",
+        "choices": [
+          {
+            "value": "dmg_green",
+            "label": "Original green"
+          },
+          {
+            "value": "grayscale",
+            "label": "Grayscale"
+          },
+          {
+            "value": "pocket",
+            "label": "Pocket"
+          }
+        ]
+      },
+      {
+        "id": "sgb_border",
+        "label": "Super Game Boy border",
+        "description": "Show a decorative border around the screen.",
+        "group": "Video",
+        "kind": "toggle",
+        "default": false
+      }
+    ],
     "notes": "EXAMPLE ONLY - a fake entry showing an unofficial, bundled core. There was no official Game Boy Virtual Console on the Wii, and cores/gb/example-gb-core.dol does not exist; point dol_path at a DOL this project owns/builds itself. dol_path is resolved relative to this file. ios_version is an unverified placeholder."
+  },
+  {
+    "system": "Game Boy Color (example)",
+    "id": "gbc",
+    "core_source": {
+      "kind": "bundled",
+      "dol_path": "gbc/example-gbc-core.dol"
+    },
+    "valid_extensions": [
+      "gbc"
+    ],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "A": "wiimote_2",
+          "B": "wiimote_1",
+          "Start": "wiimote_plus",
+          "Select": "wiimote_minus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "ios_version": 58,
+    "options": [
+      {
+        "id": "color_correction",
+        "label": "Color correction",
+        "description": "Approximates the original screen's washed-out colors.",
+        "group": "Video",
+        "kind": "toggle",
+        "default": true,
+        "key": "video.color_correction"
+      },
+      {
+        "id": "dmg_palette",
+        "label": "Colorize monochrome games",
+        "description": "Apply a color palette to original Game Boy games.",
+        "group": "Video",
+        "kind": "toggle",
+        "default": true
+      }
+    ],
+    "notes": "EXAMPLE ONLY - a fake entry showing an unofficial, bundled core. There was no official Game Boy Color Virtual Console on the Wii; point core_source.dol_path at a DOL this project owns/builds itself. dol_path is resolved relative to this file. ios_version is an unverified placeholder."
+  },
+  {
+    "system": "Game Boy Advance (example)",
+    "id": "gba",
+    "core_source": {
+      "kind": "bundled",
+      "dol_path": "gba/example-gba-core.dol"
+    },
+    "valid_extensions": [
+      "gba"
+    ],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "wiimote_sideways",
+        "map": {
+          "A": "wiimote_2",
+          "B": "wiimote_1",
+          "L": "wiimote_1",
+          "R": "wiimote_2",
+          "Start": "wiimote_plus",
+          "Select": "wiimote_minus",
+          "Up": "wiimote_dpad_up",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right"
+        }
+      },
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "L": "classic_l",
+          "R": "classic_r",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "ios_version": 58,
+    "options": [
+      {
+        "id": "save_type",
+        "label": "Save type",
+        "description": "Override only if a game fails to save.",
+        "group": "Save data",
+        "kind": "select",
+        "default": "auto",
+        "key": "save.type",
+        "choices": [
+          {
+            "value": "auto",
+            "label": "Auto-detect"
+          },
+          {
+            "value": "sram",
+            "label": "SRAM"
+          },
+          {
+            "value": "flash_64k",
+            "label": "Flash 64 KB"
+          },
+          {
+            "value": "flash_128k",
+            "label": "Flash 128 KB"
+          },
+          {
+            "value": "eeprom",
+            "label": "EEPROM"
+          }
+        ]
+      },
+      {
+        "id": "rtc",
+        "label": "Real-time clock",
+        "description": "Needed by games that track the time of day (e.g. Pok\u00e9mon).",
+        "group": "Cartridge hardware",
+        "kind": "toggle",
+        "default": false,
+        "key": "accessories.rtc"
+      },
+      {
+        "id": "sensor",
+        "label": "Cartridge sensor",
+        "description": "A few cartridges shipped with a motion or light sensor.",
+        "group": "Cartridge hardware",
+        "kind": "select",
+        "default": "none",
+        "choices": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "tilt",
+            "label": "Tilt"
+          },
+          {
+            "value": "solar",
+            "label": "Solar"
+          },
+          {
+            "value": "gyro",
+            "label": "Gyro"
+          }
+        ]
+      },
+      {
+        "id": "cart_rumble",
+        "label": "Cartridge rumble",
+        "group": "Cartridge hardware",
+        "kind": "toggle",
+        "default": false
+      }
+    ],
+    "notes": "EXAMPLE ONLY - a fake entry showing an unofficial, bundled core. There was no official Game Boy Advance Virtual Console on the Wii; point core_source.dol_path at a DOL this project owns/builds itself. dol_path is resolved relative to this file. ios_version is an unverified placeholder."
+  },
+  {
+    "system": "Nintendo DS (example)",
+    "id": "nds",
+    "core_source": {
+      "kind": "bundled",
+      "dol_path": "nds/example-nds-core.dol"
+    },
+    "valid_extensions": [
+      "nds"
+    ],
+    "header_size": null,
+    "default_mappings": [
+      {
+        "device": "classic_controller",
+        "map": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "X": "classic_x",
+          "Y": "classic_y",
+          "L": "classic_l",
+          "R": "classic_r",
+          "Start": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right"
+        }
+      }
+    ],
+    "title_id_prefix": [
+      0,
+      1,
+      0,
+      1
+    ],
+    "ios_version": 58,
+    "options": [
+      {
+        "id": "slot2",
+        "label": "Slot-2 accessory",
+        "description": "The DS's second (GBA) slot. The Memory Expansion Pak adds RAM for the few titles that use it (e.g. the DS Browser).",
+        "group": "Accessories",
+        "kind": "select",
+        "default": "none",
+        "choices": [
+          {
+            "value": "none",
+            "label": "None"
+          },
+          {
+            "value": "memory_expansion",
+            "label": "Memory Expansion Pak"
+          },
+          {
+            "value": "rumble_pak",
+            "label": "Rumble Pak"
+          },
+          {
+            "value": "guitar_grip",
+            "label": "Guitar Grip"
+          }
+        ]
+      },
+      {
+        "id": "rumble_strength",
+        "label": "Rumble strength",
+        "description": "Only applies to controllers that can rumble.",
+        "group": "Accessories",
+        "kind": "number",
+        "default": 60,
+        "key": "input.rumble_strength",
+        "min": 0,
+        "max": 100,
+        "step": 10,
+        "unit": "%",
+        "devices": [
+          "wiimote_sideways",
+          "gamecube"
+        ],
+        "visible_when": {
+          "option": "slot2",
+          "equals": "rumble_pak"
+        }
+      },
+      {
+        "id": "layout",
+        "label": "Screen layout",
+        "group": "Display",
+        "kind": "select",
+        "default": "stacked",
+        "key": "video.layout",
+        "choices": [
+          {
+            "value": "stacked",
+            "label": "Stacked (top / bottom)"
+          },
+          {
+            "value": "side_by_side",
+            "label": "Side by side"
+          },
+          {
+            "value": "single",
+            "label": "One screen at a time"
+          }
+        ]
+      },
+      {
+        "id": "touch_input",
+        "label": "Touch screen input",
+        "description": "How the touch screen is controlled with a gamepad.",
+        "group": "Display",
+        "kind": "select",
+        "default": "right_stick",
+        "choices": [
+          {
+            "value": "right_stick",
+            "label": "Right stick moves cursor"
+          },
+          {
+            "value": "left_stick",
+            "label": "Left stick moves cursor"
+          }
+        ]
+      }
+    ],
+    "notes": "EXAMPLE ONLY - a fake entry showing an unofficial, bundled core. There was no official Nintendo DS Virtual Console on the Wii; point core_source.dol_path at a DOL this project owns/builds itself. dol_path is resolved relative to this file. ios_version is an unverified placeholder. Touchscreen/stylus input is not represented by this example mapping."
   }
 ]

@@ -6,6 +6,10 @@ import { initPathFields } from "./paths.js";
 import { loadCores } from "./cores.js";
 import { updateSummary } from "./summary.js";
 import { initNativeDragDrop } from "./dropzones.js";
+import { initMapping } from "./mapping.js";
+import { initCoreOptions } from "./coreOptions.js";
+import { onOptionsChanged } from "./configuration.js";
+import { initConfigPreview } from "./configPreview.js";
 
 (async function init() {
   initStepper();
@@ -14,6 +18,9 @@ import { initNativeDragDrop } from "./dropzones.js";
   initBuild();
   initSourceFields();
   initPathFields();
+  initMapping();
+  initCoreOptions({ onChange: onOptionsChanged });
+  initConfigPreview();
 
   // Registers the window-level listener that makes drag-and-drop onto any
   // .dropzone actually resolve to a real filesystem path -- see

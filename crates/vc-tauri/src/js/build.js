@@ -2,9 +2,11 @@ import { $ } from "./dom.js";
 import { escapeHtml } from "./dom.js";
 import { state } from "./state.js";
 import { invoke, hasTauri } from "./tauri.js";
-import { updateSummary } from "./summary.js";
 import { setStep } from "./nav.js";
 import { markTitleIdUsed } from "./titleid.js";
+import { currentMapping } from "./mapping.js";
+import { currentOptions } from "./coreOptions.js";
+import { refreshConfiguration } from "./configuration.js";
 
 export function initBuild() {
   $("#build-button").addEventListener("click", onBuild);
@@ -36,11 +38,9 @@ async function onBuild() {
   status.innerHTML = `<span>…</span><span>Building…</span>`;
 
   try {
-    // TODO(backend): button_map is still a placeholder in
-    // commands::build_wad_command -- see the TODO there. Real per-button
-    // overrides collected from the Configuration step aren't wired into
-    // `map` yet; only the selected device is used today.
-    const mapping = { device: $("#controller").value, map: {} };
+    // Bindings + option values become the unified core config file
+    // (validated by the backend; see docs/CONFIG_FORMAT.md).
+    const mapping = currentMapping();
 
     await invoke("build_wad_command", {
       registryPath: $("#registry-path").value || "cores/registry.json",
@@ -50,6 +50,7 @@ async function onBuild() {
       title: $("#title").value,
       outputPath,
       mapping,
+      options: currentOptions(),
       donorPath: state.donor?.path || null,
       keysPath: state.keys?.path || null,
     });
@@ -76,5 +77,6 @@ function resetBuild() {
     art.style.backgroundImage = "";
   });
   setStep(0);
-  updateSummary();
+  state.optionMemory = {};
+  refreshConfiguration();
 }

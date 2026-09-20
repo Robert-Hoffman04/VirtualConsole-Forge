@@ -10,6 +10,8 @@
 //! - `registry`  — loads core plugin definitions (system, DOL, defaults)
 //! - `rom`       — ROM validation/normalization per core
 //! - `config`    — VcConfig struct: baked-in button mapping + settings
+//! - `options`   — per-core option validation and resolution
+//! - `coreconfig` — the unified core config file (JSON) handed to emulator cores
 //! - `banner`    — banner.bin generation from cover art + title text
 //! - `tmd`       — Title Metadata structure/builder
 //! - `ticket`    — Ticket structure/builder
@@ -22,7 +24,9 @@ pub mod config;
 pub mod crypto;
 pub mod donor;
 pub mod donor_store;
+pub mod coreconfig;
 pub mod error;
+pub mod options;
 pub mod registry;
 pub mod rom;
 pub mod ticket;

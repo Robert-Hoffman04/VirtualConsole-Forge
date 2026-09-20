@@ -1,0 +1,31 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "c64",
+    "system": "Commodore 64"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "Down": "classic_dpad_down",
+      "Fire": "classic_b",
+      "Left": "classic_dpad_left",
+      "Right": "classic_dpad_right",
+      "Up": "classic_dpad_up"
+    },
+    "ports": {}
+  },
+  "video": {
+    "timing": "pal"
+  },
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {},
+  "extra": {
+    "joystick_port": "port_2",
+    "true_drive": false,
+    "virtual_keyboard": true
+  }
+}

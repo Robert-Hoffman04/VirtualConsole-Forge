@@ -1,0 +1,33 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "arcade",
+    "system": "Virtual Console Arcade"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "Button 1": "classic_b",
+      "Button 2": "classic_a",
+      "Button 3": "classic_y",
+      "Coin": "classic_minus",
+      "Down": "classic_dpad_down",
+      "Left": "classic_dpad_left",
+      "Right": "classic_dpad_right",
+      "Start": "classic_plus",
+      "Up": "classic_dpad_up"
+    },
+    "ports": {}
+  },
+  "video": {},
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {},
+  "extra": {
+    "difficulty": "normal",
+    "free_play": false,
+    "lives": 3
+  }
+}

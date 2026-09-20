@@ -7,7 +7,11 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use vc_core::config::{InputDeviceId, SaveTarget, VcConfig};
 use vc_core::donor::KeyProvider;
-use vc_core::registry::{find_core, load_registry, CoreDefinition, CoreSource};
+use vc_core::coreconfig::{build_core_config, CoreConfig, InputMapping};
+use vc_core::registry::{
+    find_core, load_registry, ButtonMapping, ControllerPort, CoreDefinition, CoreOption, CoreSource, InputDevice,
+    OptionCondition,
+};
 use vc_core::wad::{build_wad, WadBuildRequest};
 
 #[derive(Serialize)]
@@ -20,6 +24,18 @@ pub struct CoreSummary {
     /// official WAD (ROM swap); "bundled" = a DOL this project ships itself
     /// (unofficial). The UI groups the core dropdown on this.
     source: &'static str,
+    /// Console button -> physical input defaults, one entry per supported
+    /// controller. The UI builds its button-binding rows from these.
+    default_mappings: Vec<ButtonMapping>,
+    /// Core-specific settings (accessories, video, compatibility, ...). The
+    /// UI builds this core's "Core Options" panel from them.
+    options: Vec<CoreOption>,
+    /// Console buttons that only exist while an option has a given value
+    /// (e.g. Genesis X/Y/Z/Mode with the six-button pad).
+    button_requires: std::collections::BTreeMap<String, OptionCondition>,
+    /// Extra emulated controllers one physical controller can drive (e.g. N64
+    /// controller 2 in dual-controller mode).
+    controller_ports: Vec<ControllerPort>,
     /// Present when the core needs a user-supplied donor WAD; the
     /// frontend should prompt for one (and for the keys file) before
     /// calling build_wad_command.
@@ -74,6 +90,10 @@ pub fn list_cores(registry_path: String) -> Result<Vec<CoreSummary>, String> {
                 system: c.system,
                 valid_extensions: c.valid_extensions,
                 source,
+                default_mappings: c.default_mappings,
+                options: c.options,
+                button_requires: c.button_requires,
+                controller_ports: c.controller_ports,
                 donor_label,
             }
         })
@@ -83,7 +103,63 @@ pub fn list_cores(registry_path: String) -> Result<Vec<CoreSummary>, String> {
 #[derive(Deserialize)]
 pub struct ButtonMappingInput {
     pub device: String, // "wiimote_sideways" | "classic_controller" | "gamecube"
+    /// Bindings for emulated controller 1.
     pub map: std::collections::BTreeMap<String, String>,
+    /// Bindings for emulated controllers 2 and up, keyed by port number.
+    #[serde(default)]
+    pub ports: std::collections::BTreeMap<String, std::collections::BTreeMap<String, String>>,
+}
+
+fn parse_device(name: &str) -> Result<(InputDevice, InputDeviceId), String> {
+    match name {
+        "wiimote_sideways" => Ok((InputDevice::WiimoteSideways, InputDeviceId::WiimoteSideways)),
+        "classic_controller" => Ok((InputDevice::ClassicController, InputDeviceId::ClassicController)),
+        "gamecube" => Ok((InputDevice::Gamecube, InputDeviceId::Gamecube)),
+        other => Err(format!("unknown controller type '{other}'")),
+    }
+}
+
+type OptionValues = std::collections::BTreeMap<String, serde_json::Value>;
+
+/// Build the unified core config from what the UI sent. An empty mapping
+/// means "use the core's defaults for that controller".
+fn assemble_config(
+    core: &CoreDefinition,
+    mapping: ButtonMappingInput,
+    options: Option<OptionValues>,
+) -> Result<(CoreConfig, InputDeviceId), String> {
+    let ButtonMappingInput { device, map, ports } = mapping;
+    let (device, device_id) = parse_device(&device)?;
+    let ports = ports
+        .into_iter()
+        .map(|(port, buttons)| {
+            port.parse::<u8>()
+                .map(|p| (p, buttons))
+                .map_err(|_| format!("invalid controller port '{port}'"))
+        })
+        .collect::<Result<std::collections::BTreeMap<_, _>, _>>()?;
+    let input = if map.is_empty() && ports.is_empty() {
+        None
+    } else {
+        Some(InputMapping { buttons: map, ports })
+    };
+    let config = build_core_config(core, device, input.as_ref(), &options.unwrap_or_default())
+        .map_err(|e| e.to_string())?;
+    Ok((config, device_id))
+}
+
+/// The exact config file a build with these settings would hand to the core,
+/// so the UI can show it.
+#[tauri::command]
+pub fn preview_core_config(
+    registry_path: String,
+    core_id: String,
+    mapping: ButtonMappingInput,
+    options: Option<OptionValues>,
+) -> Result<String, String> {
+    let cores = load_registry(&resolve_registry_path(&registry_path)).map_err(|e| e.to_string())?;
+    let core = find_core(&cores, &core_id).map_err(|e| e.to_string())?;
+    assemble_config(core, mapping, options).map(|(config, _)| config.to_json())
 }
 
 #[tauri::command]
@@ -94,7 +170,8 @@ pub fn build_wad_command(
     cover_path: Option<String>,
     title: String,
     output_path: String,
-    _mapping: ButtonMappingInput,
+    mapping: ButtonMappingInput,
+    options: Option<OptionValues>,
     donor_path: Option<String>,
     keys_path: Option<String>,
 ) -> Result<String, String> {
@@ -121,14 +198,19 @@ pub fn build_wad_command(
         .transpose()
         .map_err(|e| e.to_string())?;
 
-    // TODO: translate `_mapping` into VcConfig.button_map using the core's
-    // default_mappings key order once that lookup helper is written.
+    // Unified core config file: bindings + option values, validated against
+    // the core's registry entry. Options that don't apply to the chosen
+    // controller resolve to their defaults.
+    let (core_config, device_id) = assemble_config(core, mapping, options)?;
+
+    // The legacy binary blob below is only used by donor (official VC) builds;
+    // its `button_map` is still not translated.
     let title_id: [u8; 8] = [0x00, 0x01, 0x00, 0x01, 0xDE, 0xAD, 0xBE, 0xEF];
     let title_key: [u8; 16] = [0u8; 16];
 
     let config = VcConfig {
         console_id: 0,
-        input_device: InputDeviceId::ClassicController,
+        input_device: device_id,
         button_map: [0u8; 16],
         save_target: SaveTarget::NandSavePartition,
         video_mode: 0,
@@ -140,6 +222,8 @@ pub fn build_wad_command(
         cover_art: cover_bytes.as_deref(),
         title,
         config,
+        // Bundled cores read the JSON config; donor builds keep the legacy blob.
+        core_config: matches!(core.core_source, CoreSource::Bundled { .. }).then(|| core_config.to_bytes()),
         title_id,
         title_key,
         donor_wad_path: donor_path.as_ref().map(std::path::Path::new),

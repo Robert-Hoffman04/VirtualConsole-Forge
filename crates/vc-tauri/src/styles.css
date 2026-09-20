@@ -613,9 +613,25 @@ select:focus {
 
 .mapping-row {
     display: grid;
-    grid-template-columns: 1fr 105px;
+    grid-template-columns: 1fr 132px;
     gap: 8px;
     align-items: center;
+}
+
+.mapping-row.conflict select {
+    border-color: var(--warning);
+}
+
+.mapping-status {
+    color: var(--subtle);
+    text-align: center;
+    font-size: 10px;
+    margin-top: 6px;
+    min-height: 13px;
+}
+
+.mapping-status.warning {
+    color: var(--warning);
 }
 
 .mapping-label {
@@ -812,5 +828,213 @@ select:focus {
 
     .controller-visual {
         order: -1;
+    }
+}
+
+/* ---- Core options panel -------------------------------------------- */
+.option-group + .option-group {
+    margin-top: 18px;
+}
+
+.option-group-title {
+    margin-bottom: 4px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.option-row {
+    display: grid;
+    grid-template-columns: 1fr minmax(160px, 240px);
+    align-items: center;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.option-row[hidden] {
+    display: none;
+}
+
+.option-row.unavailable .option-text label,
+.option-row.unavailable .option-desc {
+    opacity: .5;
+}
+
+.option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.option-text label {
+    font-weight: 500;
+}
+
+.option-desc {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.option-hint {
+    color: var(--warning);
+    font-size: 11px;
+}
+
+.option-control {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.option-control select {
+    width: 100%;
+}
+
+.range-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.range-control input[type="range"] {
+    flex: 1;
+    height: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    accent-color: var(--accent);
+}
+
+.range-control output {
+    min-width: 44px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 22px;
+}
+
+.switch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.switch-track {
+    position: absolute;
+    inset: 0;
+    border-radius: 11px;
+    background: #303b47;
+    transition: background .15s;
+    pointer-events: none;
+}
+
+.switch-track::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--text);
+    transition: transform .15s;
+}
+
+.switch input:checked + .switch-track {
+    background: var(--accent-strong);
+}
+
+.switch input:checked + .switch-track::after {
+    transform: translateX(16px);
+}
+
+.switch input:focus-visible + .switch-track {
+    box-shadow: 0 0 0 2px rgba(75, 140, 255, .35);
+}
+
+.switch input:disabled + .switch-track {
+    opacity: .45;
+}
+
+.option-footer {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.option-footer[hidden],
+#reset-options[hidden] {
+    display: none;
+}
+
+
+/* ---- Core config file preview -------------------------------------- */
+.config-preview {
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+.config-preview summary {
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.config-preview pre {
+    margin: 10px 0 0;
+    max-height: 320px;
+    overflow: auto;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background: #0d1217;
+    color: var(--text);
+    font: 11px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: pre;
+}
+
+
+/* ---- Additional emulated controllers (e.g. N64 dual-controller mode) - */
+.port-title {
+    margin: 18px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.port-title[hidden] {
+    display: none;
+}
+
+.port-block {
+    margin-top: 18px;
+}
+
+.port-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px 24px;
+    margin-top: 8px;
+}
+
+@media (max-width: 900px) {
+    .port-grid {
+        grid-template-columns: 1fr;
     }
 }

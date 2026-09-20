@@ -1,0 +1,37 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "gba",
+    "system": "Game Boy Advance (example)"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "A": "classic_a",
+      "B": "classic_b",
+      "Down": "classic_dpad_down",
+      "L": "classic_l",
+      "Left": "classic_dpad_left",
+      "R": "classic_r",
+      "Right": "classic_dpad_right",
+      "Select": "classic_minus",
+      "Start": "classic_plus",
+      "Up": "classic_dpad_up"
+    },
+    "ports": {}
+  },
+  "video": {},
+  "audio": {},
+  "system": {},
+  "save": {
+    "type": "auto"
+  },
+  "accessories": {
+    "rtc": false
+  },
+  "extra": {
+    "cart_rumble": false,
+    "sensor": "none"
+  }
+}

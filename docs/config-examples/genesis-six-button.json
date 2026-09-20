@@ -1,0 +1,37 @@
+{
+  "format": "vcforge-config",
+  "version": 1,
+  "core": {
+    "id": "genesis",
+    "system": "Sega Genesis"
+  },
+  "input": {
+    "device": "classic_controller",
+    "buttons": {
+      "A": "classic_y",
+      "B": "classic_b",
+      "C": "classic_a",
+      "Down": "classic_dpad_down",
+      "Left": "classic_dpad_left",
+      "Mode": "classic_minus",
+      "Right": "classic_dpad_right",
+      "Start": "classic_plus",
+      "Up": "classic_dpad_up",
+      "X": "classic_l",
+      "Y": "classic_x",
+      "Z": "classic_r"
+    },
+    "ports": {},
+    "six_button": true
+  },
+  "video": {},
+  "audio": {
+    "filter": true
+  },
+  "system": {
+    "region": "us"
+  },
+  "save": {},
+  "accessories": {},
+  "extra": {}
+}

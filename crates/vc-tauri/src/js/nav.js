@@ -12,6 +12,7 @@ export function setStep(step) {
   });
   $$(".step-panel").forEach((el, i) => (el.hidden = i !== state.step));
   updateSummary();
+  document.dispatchEvent(new CustomEvent("stepchange", { detail: state.step }));
 }
 
 export function initStepper() {

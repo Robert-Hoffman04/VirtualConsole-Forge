@@ -17,6 +17,8 @@ either:
   own dump. Neither the donor WAD nor the key ever ships with this tool.
 
 See [`docs/DESIGN.md`](docs/DESIGN.md) for the full pipeline, content
+
+The file every emulator core reads for its input bindings and settings is specified in `docs/CONFIG_FORMAT.md`.
 layout, donor-extraction flow, and signing notes.
 
 ## Layout
@@ -44,6 +46,11 @@ docs/         design notes
 | `state.js` | shared build-wizard state object |
 | `dropzones.js` | wires `.dropzone` elements to real filesystem paths — see below |
 | `cores.js` | loads the registry (`list_cores`), builds the core `<select>`, renders donor/keys fields |
+| `mapping.js`, `mappingData.js` | per-system button-binding rows (data helpers are DOM-free) |
+| `coreOptions.js`, `coreOptionsData.js` | the per-core "Core Options" panel built from the registry's `options` (data helpers are DOM-free) |
+| `configuration.js` | entry points that rebuild the Configuration step when the core/controller or an option changes |
+| `configPreview.js` | Build-step preview of the core config file, produced by the backend |
+| `controllerPreview.js` | controller illustration that follows the selected controller |
 | `summary.js` | keeps every summary/preview element in sync with state |
 | `nav.js` | wizard step navigation + sidebar view switching |
 | `titleid.js` | Title ID conflict-check prototype (local-only, see comments in the file) |
