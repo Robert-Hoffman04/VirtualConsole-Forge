@@ -3,7 +3,7 @@
 //! (see `coreconfig.rs` for where they are written).
 //!
 //! Semantics (mirrored by the frontend in `coreOptionsData.js`):
-//! - An option is *applicable* when the selected controller is in its
+//! - An option is *applicable* when at least one enabled controller is in its
 //!   `devices` list (or the list is empty) **and** its `visible_when`
 //!   condition holds, evaluated against the *effective* value of an earlier
 //!   option.
@@ -208,8 +208,9 @@ fn validate_ports(core: &CoreDefinition) -> Result<(), VcError> {
     Ok(())
 }
 
-fn is_applicable(opt: &CoreOption, device: InputDevice, effective: &BTreeMap<String, Value>) -> bool {
-    if !opt.devices.is_empty() && !opt.devices.contains(&device) {
+fn is_applicable(opt: &CoreOption, devices: &[InputDevice], effective: &BTreeMap<String, Value>) -> bool {
+    // A device-restricted option applies while at least one of its devices is enabled.
+    if !opt.devices.is_empty() && !opt.devices.iter().any(|d| devices.contains(d)) {
         return false;
     }
     opt.visible_when.as_ref().map_or(true, |c| condition_holds(c, effective))
@@ -231,11 +232,12 @@ pub struct ResolvedOption<'a> {
 }
 
 /// Validate the user's chosen `values` (option id -> JSON value) for `core`
-/// with `device` selected. Options the user didn't set, and options that
-/// don't apply, resolve to their default. Returned in registry order.
+/// with `devices` (the enabled controllers) selected. Options the user didn't
+/// set, and options that don't apply, resolve to their default. Returned in
+/// registry order.
 pub fn resolve_options<'a>(
     core: &'a CoreDefinition,
-    device: InputDevice,
+    devices: &[InputDevice],
     values: &BTreeMap<String, Value>,
 ) -> Result<Vec<ResolvedOption<'a>>, VcError> {
     if let Some(unknown) = values.keys().find(|k| !core.options.iter().any(|o| &o.id == *k)) {
@@ -252,7 +254,7 @@ pub fn resolve_options<'a>(
         if let Some(v) = values.get(&opt.id) {
             check_value(opt, v).map_err(|e| bad_val(opt, e))?;
         }
-        let applicable = is_applicable(opt, device, &effective);
+        let applicable = is_applicable(opt, devices, &effective);
         let value = match values.get(&opt.id) {
             Some(v) if applicable => normalize(opt, v.clone()),
             _ => normalize(opt, opt.default.clone()),
@@ -330,7 +332,7 @@ mod tests {
     }
 
     fn resolved(c: &CoreDefinition, d: InputDevice, v: Value) -> Vec<Value> {
-        resolve_options(c, d, &vals(v)).unwrap().into_iter().map(|r| r.value).collect()
+        resolve_options(c, &[d], &vals(v)).unwrap().into_iter().map(|r| r.value).collect()
     }
 
     #[test]
@@ -349,11 +351,22 @@ mod tests {
     fn device_filter_and_hidden_options_fall_back_to_default() {
         let c = sample();
         // Classic Controller can't rumble: strength is inapplicable -> default 50.
-        let out = resolve_options(&c, InputDevice::ClassicController, &vals(json!({ "pak": "rumble", "strength": 80 }))).unwrap();
+        let out = resolve_options(&c, &[InputDevice::ClassicController], &vals(json!({ "pak": "rumble", "strength": 80 }))).unwrap();
         assert_eq!(out[1].value, json!(50));
         assert!(!out[1].applicable);
         // Pak not set to rumble: strength hidden even on GameCube.
         assert_eq!(resolved(&c, InputDevice::Gamecube, json!({ "strength": 80 }))[1], json!(50));
+    }
+
+    #[test]
+    fn device_restricted_options_apply_if_any_enabled_device_matches() {
+        let c = sample(); // strength: devices = [gamecube], visible when pak == rumble
+        let v = vals(json!({ "pak": "rumble", "strength": 80 }));
+        let both = resolve_options(&c, &[InputDevice::ClassicController, InputDevice::Gamecube], &v).unwrap();
+        assert_eq!(both[1].value, json!(80));
+        assert!(both[1].applicable);
+        let none = resolve_options(&c, &[], &v).unwrap();
+        assert_eq!(none[1].value, json!(50));
     }
 
     #[test]
@@ -366,7 +379,7 @@ mod tests {
     fn bad_values_are_rejected() {
         let c = sample();
         for bad in [json!({ "pak": "nope" }), json!({ "ram": "yes" }), json!({ "strength": 101 }), json!({ "ghost": 1 })] {
-            assert!(resolve_options(&c, InputDevice::Gamecube, &vals(bad)).is_err());
+            assert!(resolve_options(&c, &[InputDevice::Gamecube], &vals(bad)).is_err());
         }
     }
 

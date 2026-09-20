@@ -143,33 +143,18 @@
             <div class="panel">
               <div class="panel-header">
                 <div class="panel-title">Configuration</div>
-                <div class="panel-description">Set controller behavior and supply additional files only when the
-                  selected core requires them.</div>
+                <div class="panel-description">Choose which controllers to support, bind their buttons, and set
+                  options for the selected core.</div>
               </div>
               <div class="panel-body">
                 <div class="field">
-                  <label for="controller">Controller Type</label>
-                  <select id="controller">
-                    <option value="classic_controller">Classic Controller</option>
-                    <option value="wiimote_sideways">Wiimote — Sideways</option>
-                    <option value="gamecube">GameCube Controller</option>
-                  </select>
+                  <label id="controller-label">Controllers</label>
+                  <div class="controller-picker" id="controller-picker" role="group" aria-labelledby="controller-label">
+                  </div>
+                  <div class="field-hint warning" id="controller-hint">Select at least one controller to continue.</div>
                 </div>
 
-                <div class="port-title" id="port1-title" hidden></div>
-                <div class="controller" style="margin-top:18px">
-                  <div class="mapping-list" id="mapping-left"></div>
-                  <div>
-                    <div class="controller-visual">
-                      <div class="controller-art" id="controller-art" role="img" aria-label="Controller preview"></div>
-                    </div>
-                    <div class="controller-note">Mappings are translated into the core configuration at build time.
-                    </div>
-                    <div class="mapping-status" id="mapping-status"></div>
-                  </div>
-                  <div class="mapping-list" id="mapping-right"></div>
-                </div>
-                <div id="extra-ports"></div>
+                <div id="device-panels"></div>
 
                 <div class="panel" id="core-options-panel" style="margin-top:20px;background:#13191f">
                   <div class="panel-header">

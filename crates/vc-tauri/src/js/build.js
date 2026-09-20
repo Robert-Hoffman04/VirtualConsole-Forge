@@ -4,7 +4,7 @@ import { state } from "./state.js";
 import { invoke, hasTauri } from "./tauri.js";
 import { setStep } from "./nav.js";
 import { markTitleIdUsed } from "./titleid.js";
-import { currentMapping } from "./mapping.js";
+import { currentInput, clearDevices } from "./mapping.js";
 import { currentOptions } from "./coreOptions.js";
 import { refreshConfiguration } from "./configuration.js";
 
@@ -20,6 +20,11 @@ async function onBuild() {
   if (!state.rom || !$("#title").value) {
     status.className = "validation error";
     status.innerHTML = `<span>!</span><span>A ROM and title are required before building.</span>`;
+    return;
+  }
+  if (!state.devices.length) {
+    status.className = "validation error";
+    status.innerHTML = `<span>!</span><span>Select at least one controller on the Configuration step.</span>`;
     return;
   }
   const outputPath = $("#output-path").value.trim();
@@ -40,7 +45,7 @@ async function onBuild() {
   try {
     // Bindings + option values become the unified core config file
     // (validated by the backend; see docs/CONFIG_FORMAT.md).
-    const mapping = currentMapping();
+    const input = currentInput();
 
     await invoke("build_wad_command", {
       registryPath: $("#registry-path").value || "cores/registry.json",
@@ -49,7 +54,7 @@ async function onBuild() {
       coverPath: state.cover?.path || null,
       title: $("#title").value,
       outputPath,
-      mapping,
+      input,
       options: currentOptions(),
       donorPath: state.donor?.path || null,
       keysPath: state.keys?.path || null,
@@ -78,5 +83,6 @@ function resetBuild() {
   });
   setStep(0);
   state.optionMemory = {};
+  clearDevices();
   refreshConfiguration();
 }

@@ -1,25 +1,28 @@
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core": {
     "id": "neogeo",
     "system": "Neo Geo"
   },
   "input": {
-    "device": "classic_controller",
-    "buttons": {
-      "A": "classic_b",
-      "B": "classic_a",
-      "C": "classic_y",
-      "D": "classic_x",
-      "Down": "classic_dpad_down",
-      "Left": "classic_dpad_left",
-      "Right": "classic_dpad_right",
-      "Select": "classic_minus",
-      "Start": "classic_plus",
-      "Up": "classic_dpad_up"
-    },
-    "ports": {}
+    "devices": {
+      "classic_controller": {
+        "buttons": {
+          "A": "classic_b",
+          "B": "classic_a",
+          "C": "classic_y",
+          "D": "classic_x",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right",
+          "Select": "classic_minus",
+          "Start": "classic_plus",
+          "Up": "classic_dpad_up"
+        },
+        "ports": {}
+      }
+    }
   },
   "video": {},
   "audio": {},

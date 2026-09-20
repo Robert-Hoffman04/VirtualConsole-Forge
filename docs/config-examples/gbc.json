@@ -1,23 +1,26 @@
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core": {
     "id": "gbc",
     "system": "Game Boy Color (example)"
   },
   "input": {
-    "device": "classic_controller",
-    "buttons": {
-      "A": "classic_a",
-      "B": "classic_b",
-      "Down": "classic_dpad_down",
-      "Left": "classic_dpad_left",
-      "Right": "classic_dpad_right",
-      "Select": "classic_minus",
-      "Start": "classic_plus",
-      "Up": "classic_dpad_up"
-    },
-    "ports": {}
+    "devices": {
+      "classic_controller": {
+        "buttons": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right",
+          "Select": "classic_minus",
+          "Start": "classic_plus",
+          "Up": "classic_dpad_up"
+        },
+        "ports": {}
+      }
+    }
   },
   "video": {
     "color_correction": true

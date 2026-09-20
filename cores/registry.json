@@ -315,6 +315,7 @@
         "unit": "%",
         "devices": [
           "wiimote_sideways",
+          "wiimote_nunchuk",
           "gamecube"
         ],
         "visible_when": {
@@ -1542,6 +1543,7 @@
         "unit": "%",
         "devices": [
           "wiimote_sideways",
+          "wiimote_nunchuk",
           "gamecube"
         ],
         "visible_when": {

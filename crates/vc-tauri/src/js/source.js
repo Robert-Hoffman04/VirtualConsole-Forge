@@ -4,7 +4,6 @@ import { registerDropzone } from "./dropzones.js";
 import { assetUrl } from "./tauri.js";
 import { updateSummary } from "./summary.js";
 import { updateCoreRequirements } from "./cores.js";
-import { refreshConfiguration } from "./configuration.js";
 
 /** Wire the cover-art dropzone and the plain (non-file) Source-step inputs. Note: the ROM
  * dropzone is (re)registered by cores.js#updateCoreRequirements, since its file-type filter
@@ -31,8 +30,5 @@ export function initSourceFields() {
 
   $("#title").addEventListener("input", updateSummary);
   $("#title-id").addEventListener("input", updateSummary);
-  $("#controller").addEventListener("change", () => {
-    refreshConfiguration(); // new controller -> new bindable inputs, option availability
-  });
   $("#core").addEventListener("change", updateCoreRequirements);
 }

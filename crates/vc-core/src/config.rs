@@ -20,6 +20,20 @@ pub enum InputDeviceId {
     WiimoteSideways = 0,
     ClassicController = 1,
     Gamecube = 2,
+    /// Added for the Wiimote + Nunchuk option; older readers never see it.
+    WiimoteNunchuk = 3,
+}
+
+impl From<crate::registry::InputDevice> for InputDeviceId {
+    fn from(device: crate::registry::InputDevice) -> Self {
+        use crate::registry::InputDevice as D;
+        match device {
+            D::WiimoteSideways => InputDeviceId::WiimoteSideways,
+            D::WiimoteNunchuk => InputDeviceId::WiimoteNunchuk,
+            D::ClassicController => InputDeviceId::ClassicController,
+            D::Gamecube => InputDeviceId::Gamecube,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -80,6 +94,7 @@ impl VcConfig {
             0 => InputDeviceId::WiimoteSideways,
             1 => InputDeviceId::ClassicController,
             2 => InputDeviceId::Gamecube,
+            3 => InputDeviceId::WiimoteNunchuk,
             other => return Err(VcError::InvalidConfig(format!("bad input_device {other}"))),
         };
         let save_target = match bytes[24] {

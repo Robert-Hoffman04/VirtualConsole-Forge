@@ -1038,3 +1038,98 @@ select:focus {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* ---- Controller picker (checkbox cards) and per-controller panels --- */
+.controller-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+}
+
+.check-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #11171d;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+.check-card:hover {
+    border-color: #3b4754;
+}
+
+.check-card.checked {
+    border-color: var(--accent-strong);
+    background: #15202c;
+}
+
+.check-card:has(input:focus-visible) {
+    box-shadow: 0 0 0 2px rgba(75, 140, 255, .35);
+}
+
+.check-card input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    padding: 0;
+    border: 0;
+}
+
+.check-card-art {
+    flex: 0 0 64px;
+    width: 64px;
+    height: 45px;
+    pointer-events: none;
+}
+
+.check-card-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.check-card-title {
+    font-weight: 500;
+}
+
+.check-card-blurb {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.35;
+}
+
+.field-hint {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.field-hint.warning {
+    color: var(--warning);
+}
+
+.device-panel {
+    margin-top: 20px;
+    background: #13191f;
+}
+
+.device-panel-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+button:disabled,
+.button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}

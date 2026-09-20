@@ -1,23 +1,26 @@
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core": {
     "id": "tg16",
     "system": "TurboGrafx-16"
   },
   "input": {
-    "device": "classic_controller",
-    "buttons": {
-      "Down": "classic_dpad_down",
-      "I": "classic_b",
-      "II": "classic_a",
-      "Left": "classic_dpad_left",
-      "Right": "classic_dpad_right",
-      "Run": "classic_plus",
-      "Select": "classic_minus",
-      "Up": "classic_dpad_up"
+    "devices": {
+      "classic_controller": {
+        "buttons": {
+          "Down": "classic_dpad_down",
+          "I": "classic_b",
+          "II": "classic_a",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right",
+          "Run": "classic_plus",
+          "Select": "classic_minus",
+          "Up": "classic_dpad_up"
+        },
+        "ports": {}
+      }
     },
-    "ports": {},
     "six_button": false,
     "turbo": false
   },

@@ -24,27 +24,50 @@ use crate::error::VcError;
 #[serde(rename_all = "snake_case")]
 pub enum InputDevice {
     WiimoteSideways,
+    /// Wiimote held upright with a Nunchuk attached.
+    WiimoteNunchuk,
     ClassicController,
     Gamecube,
 }
 
 impl InputDevice {
+    /// Every device, in the order the UI lists them.
+    pub const ALL: [InputDevice; 4] = [
+        InputDevice::ClassicController,
+        InputDevice::WiimoteSideways,
+        InputDevice::WiimoteNunchuk,
+        InputDevice::Gamecube,
+    ];
+
     /// Snake-case name used in the registry, the UI and the core config file.
     pub fn as_str(self) -> &'static str {
         match self {
             InputDevice::WiimoteSideways => "wiimote_sideways",
+            InputDevice::WiimoteNunchuk => "wiimote_nunchuk",
             InputDevice::ClassicController => "classic_controller",
             InputDevice::Gamecube => "gamecube",
         }
     }
 
-    /// Every physical input id of this device starts with this prefix.
-    pub fn physical_prefix(self) -> &'static str {
+    /// Every physical input id of this device starts with one of these.
+    pub fn physical_prefixes(self) -> &'static [&'static str] {
         match self {
-            InputDevice::WiimoteSideways => "wiimote_",
-            InputDevice::ClassicController => "classic_",
-            InputDevice::Gamecube => "gc_",
+            InputDevice::WiimoteSideways => &["wiimote_"],
+            InputDevice::WiimoteNunchuk => &["wiimote_", "nunchuk_"],
+            InputDevice::ClassicController => &["classic_"],
+            InputDevice::Gamecube => &["gc_"],
         }
+    }
+}
+
+impl std::str::FromStr for InputDevice {
+    type Err = String;
+
+    fn from_str(name: &str) -> Result<Self, Self::Err> {
+        InputDevice::ALL
+            .into_iter()
+            .find(|d| d.as_str() == name)
+            .ok_or_else(|| format!("unknown controller type '{name}'"))
     }
 }
 

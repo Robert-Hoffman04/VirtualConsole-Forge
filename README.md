@@ -46,11 +46,11 @@ docs/         design notes
 | `state.js` | shared build-wizard state object |
 | `dropzones.js` | wires `.dropzone` elements to real filesystem paths — see below |
 | `cores.js` | loads the registry (`list_cores`), builds the core `<select>`, renders donor/keys fields |
-| `mapping.js`, `mappingData.js` | per-system button-binding rows (data helpers are DOM-free) |
+| `mapping.js`, `mappingData.js` | controller checkboxes and one binding panel per enabled controller (data helpers are DOM-free) |
 | `coreOptions.js`, `coreOptionsData.js` | the per-core "Core Options" panel built from the registry's `options` (data helpers are DOM-free) |
-| `configuration.js` | entry points that rebuild the Configuration step when the core/controller or an option changes |
+| `configuration.js` | entry points that rebuild the Configuration step when the core, the enabled controllers or an option changes |
 | `configPreview.js` | Build-step preview of the core config file, produced by the backend |
-| `controllerPreview.js` | controller illustration that follows the selected controller |
+| `controllerPreview.js` | one inline-SVG illustration per controller, drawn by each controller's panel and checkbox card |
 | `summary.js` | keeps every summary/preview element in sync with state |
 | `nav.js` | wizard step navigation + sidebar view switching |
 | `titleid.js` | Title ID conflict-check prototype (local-only, see comments in the file) |

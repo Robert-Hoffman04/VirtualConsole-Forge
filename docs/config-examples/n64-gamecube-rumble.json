@@ -1,21 +1,24 @@
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core": {
     "id": "n64",
     "system": "Nintendo 64"
   },
   "input": {
-    "device": "gamecube",
-    "buttons": {
-      "A": "gc_a",
-      "B": "gc_b",
-      "C-Up": "gc_cstick_up",
-      "Start": "gc_start",
-      "Stick": "gc_lstick",
-      "Z": "gc_z"
+    "devices": {
+      "gamecube": {
+        "buttons": {
+          "A": "gc_a",
+          "B": "gc_b",
+          "C-Up": "gc_cstick_up",
+          "Start": "gc_start",
+          "Stick": "gc_lstick",
+          "Z": "gc_z"
+        },
+        "ports": {}
+      }
     },
-    "ports": {},
     "dual_controller": false,
     "rumble_strength": 80
   },

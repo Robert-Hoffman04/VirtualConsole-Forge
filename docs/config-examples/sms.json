@@ -1,22 +1,25 @@
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core": {
     "id": "sms",
     "system": "Sega Master System"
   },
   "input": {
-    "device": "classic_controller",
-    "buttons": {
-      "Button 1": "classic_b",
-      "Button 2": "classic_a",
-      "Down": "classic_dpad_down",
-      "Left": "classic_dpad_left",
-      "Pause": "classic_plus",
-      "Right": "classic_dpad_right",
-      "Up": "classic_dpad_up"
-    },
-    "ports": {}
+    "devices": {
+      "classic_controller": {
+        "buttons": {
+          "Button 1": "classic_b",
+          "Button 2": "classic_a",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Pause": "classic_plus",
+          "Right": "classic_dpad_right",
+          "Up": "classic_dpad_up"
+        },
+        "ports": {}
+      }
+    }
   },
   "video": {},
   "audio": {},

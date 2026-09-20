@@ -2,7 +2,7 @@ use clap::Parser;
 use std::path::PathBuf;
 use vc_core::config::{InputDeviceId, SaveTarget, VcConfig};
 use vc_core::donor::KeyProvider;
-use vc_core::coreconfig::build_core_config;
+use vc_core::coreconfig::{build_core_config, DeviceSetup};
 use vc_core::options::parse_option_args;
 use vc_core::registry::{find_core, load_registry, CoreSource, InputDevice};
 use vc_core::wad::{build_wad, WadBuildRequest};
@@ -53,6 +53,12 @@ struct Args {
     #[arg(long = "opt", value_name = "ID=VALUE")]
     opts: Vec<String>,
 
+    /// Controller to enable; repeat for several (classic_controller,
+    /// wiimote_sideways, wiimote_nunchuk, gamecube). Defaults to
+    /// classic_controller. Each gets the core's default bindings.
+    #[arg(long = "controller", value_name = "DEVICE")]
+    controllers: Vec<String>,
+
     /// Also write the unified core config file (JSON) to this path. Bundled
     /// (non-official) cores get this file embedded in the WAD as content 3.
     #[arg(long, value_name = "PATH")]
@@ -86,7 +92,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let title_key: [u8; 16] = [0u8; 16];
 
     let option_values = parse_option_args(core, &args.opts)?;
-    let core_config = build_core_config(core, InputDevice::ClassicController, None, &option_values)?;
+    let devices: Vec<InputDevice> = if args.controllers.is_empty() {
+        vec![InputDevice::ClassicController]
+    } else {
+        args.controllers.iter().map(|c| c.parse()).collect::<Result<_, String>>()?
+    };
+    let setups: Vec<DeviceSetup> = devices.iter().map(|&device| DeviceSetup { device, mapping: None }).collect();
+    let core_config = build_core_config(core, &setups, &option_values)?;
     if let Some(path) = &args.config_out {
         std::fs::write(path, core_config.to_json())?;
         println!("wrote core config to {}", path.display());
@@ -94,7 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let config = VcConfig {
         console_id: 0,
-        input_device: InputDeviceId::ClassicController,
+        input_device: InputDeviceId::from(devices[0]),
         button_map: [0u8; 16],
         save_target: SaveTarget::NandSavePartition,
         video_mode: 0,

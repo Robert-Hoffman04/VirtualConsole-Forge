@@ -94,12 +94,13 @@ export function updateCoreRequirements() {
   });
 
   const donor = core?.donor_label;
-  const box = $("#donor-fields");
+  const box = $("#donor-fields"); // the "Core Requirements" panel; absent in layouts that don't show it
   if (!donor) {
     state.donor = state.keys = null;
-    box.innerHTML = `<div class="empty-note">This core does not currently require a donor WAD or common key.</div>`;
+    if (box) box.innerHTML = `<div class="empty-note">This core does not currently require a donor WAD or common key.</div>`;
     return;
   }
+  if (!box) return; // no place to show the donor/keys pickers; the build reports what's missing
 
   box.innerHTML = `
     <div class="field">

@@ -1,9 +1,7 @@
-// Controller illustration shown on the Configuration step. Each supported
-// controller type (the <option> values of #controller, which are also the
-// `device` ids used in cores/registry.json) maps to an inline SVG, so the
-// preview swaps instantly with no image files to load.
-
-import { $ } from "./dom.js";
+// Controller illustrations for the Configuration step. Each controller type
+// (the `device` ids used in cores/registry.json) maps to an inline SVG, so
+// there are no image files to load. Panels call `controllerArt(device)` when
+// they render, rather than relying on one shared element being updated.
 
 const label = (x, y, text, size = 7, fill = "#cbd3dc") =>
   `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" text-anchor="middle" dominant-baseline="central" font-family="system-ui, sans-serif">${text}</text>`;
@@ -67,24 +65,36 @@ const GAMECUBE = `
   <circle cx="117" cy="89" r="8" fill="#e8b45c" stroke="#b58a3e" stroke-width="2"/>
 </svg>`;
 
-const CONTROLLERS = {
+const WIIMOTE_NUNCHUK = `
+<svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+  <path d="M44 132C44 140 138 140 138 124" fill="none" stroke="#56626f" stroke-width="3" stroke-linecap="round"/>
+  <rect x="22" y="6" width="44" height="126" rx="10" fill="#e4e8ec" stroke="#9aa5b1" stroke-width="2"/>
+  ${dpad(44, 30, "#3a444e")}
+  <circle cx="44" cy="58" r="9" fill="#56626f"/>${label(44, 58, "A", 8)}
+  <circle cx="32" cy="82" r="4" fill="#56626f"/>${label(32, 82, "\u2212", 6)}
+  <circle cx="44" cy="82" r="5" fill="#56626f"/>
+  <circle cx="56" cy="82" r="4" fill="#56626f"/>${label(56, 82, "+", 6)}
+  <circle cx="44" cy="102" r="6" fill="#56626f"/>${label(44, 102, "1", 6)}
+  <circle cx="44" cy="119" r="6" fill="#56626f"/>${label(44, 119, "2", 6)}
+  <path d="M138 8C160 8 168 36 166 72C165 102 154 124 138 124C122 124 111 102 110 72C108 36 116 8 138 8Z"
+        fill="#e4e8ec" stroke="#9aa5b1" stroke-width="2"/>
+  <circle cx="138" cy="38" r="13" fill="#c9d0d7" stroke="#8a95a1" stroke-width="2"/>
+  <circle cx="138" cy="38" r="8" fill="#3a444e"/>
+  <circle cx="138" cy="70" r="8" fill="#56626f"/>${label(138, 70, "C", 8)}
+  <rect x="120" y="88" width="36" height="14" rx="7" fill="#56626f"/>${label(138, 95, "Z", 8)}
+</svg>`;
+
+export const CONTROLLERS = {
   classic_controller: { name: "Classic Controller", svg: CLASSIC },
   wiimote_sideways: { name: "Wiimote (sideways)", svg: WIIMOTE_SIDEWAYS },
+  wiimote_nunchuk: { name: "Wiimote + Nunchuk", svg: WIIMOTE_NUNCHUK },
   gamecube: { name: "GameCube Controller", svg: GAMECUBE },
 };
 
-let shown = null;
-
-/** Swap the controller illustration to match the #controller <select>. Cheap to call repeatedly. */
-export function updateControllerPreview() {
-  const art = $("#controller-art");
-  const select = $("#controller");
-  if (!art || !select) return;
-
-  const key = select.value in CONTROLLERS ? select.value : "classic_controller";
-  if (key === shown) return;
-  shown = key;
-
-  art.innerHTML = CONTROLLERS[key].svg;
-  art.setAttribute("aria-label", `${CONTROLLERS[key].name} preview`);
+/**
+ * Illustration for a controller id, as { name, svg }. Each controller panel
+ * draws its own, so the pictures never depend on any single shared element.
+ */
+export function controllerArt(device) {
+  return CONTROLLERS[device] ?? CONTROLLERS.classic_controller;
 }

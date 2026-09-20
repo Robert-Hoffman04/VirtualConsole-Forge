@@ -6,9 +6,9 @@ import { initPathFields } from "./paths.js";
 import { loadCores } from "./cores.js";
 import { updateSummary } from "./summary.js";
 import { initNativeDragDrop } from "./dropzones.js";
-import { initMapping } from "./mapping.js";
+import { initControllerPicker, updatePickerHint } from "./mapping.js";
 import { initCoreOptions } from "./coreOptions.js";
-import { onOptionsChanged } from "./configuration.js";
+import { onOptionsChanged, onDevicesChanged } from "./configuration.js";
 import { initConfigPreview } from "./configPreview.js";
 
 (async function init() {
@@ -18,7 +18,7 @@ import { initConfigPreview } from "./configPreview.js";
   initBuild();
   initSourceFields();
   initPathFields();
-  initMapping();
+  initControllerPicker({ onChange: onDevicesChanged });
   initCoreOptions({ onChange: onOptionsChanged });
   initConfigPreview();
 
@@ -36,6 +36,7 @@ import { initConfigPreview } from "./configPreview.js";
   } catch (err) {
     console.error("loadCores failed:", err);
   }
+  updatePickerHint();
   updateSummary();
   setStep(0);
 })();

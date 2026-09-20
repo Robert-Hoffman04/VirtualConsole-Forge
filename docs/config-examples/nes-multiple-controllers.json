@@ -1,0 +1,61 @@
+{
+  "format": "vcforge-config",
+  "version": 2,
+  "core": {
+    "id": "nes",
+    "system": "NES"
+  },
+  "input": {
+    "devices": {
+      "classic_controller": {
+        "buttons": {
+          "A": "classic_a",
+          "B": "classic_b",
+          "Down": "classic_dpad_down",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right",
+          "Select": "classic_minus",
+          "Start": "classic_plus",
+          "Up": "classic_dpad_up"
+        },
+        "ports": {}
+      },
+      "wiimote_nunchuk": {
+        "buttons": {
+          "A": "wiimote_a",
+          "B": "nunchuk_z",
+          "Down": "nunchuk_stick_down",
+          "Left": "nunchuk_stick_left",
+          "Right": "nunchuk_stick_right",
+          "Select": "wiimote_minus",
+          "Start": "wiimote_plus",
+          "Up": "nunchuk_stick_up"
+        },
+        "ports": {}
+      },
+      "wiimote_sideways": {
+        "buttons": {
+          "A": "wiimote_2",
+          "B": "wiimote_1",
+          "Down": "wiimote_dpad_down",
+          "Left": "wiimote_dpad_left",
+          "Right": "wiimote_dpad_right",
+          "Select": "wiimote_minus",
+          "Start": "wiimote_plus",
+          "Up": "wiimote_dpad_up"
+        },
+        "ports": {}
+      }
+    }
+  },
+  "video": {
+    "crop_overscan": false
+  },
+  "audio": {},
+  "system": {},
+  "save": {},
+  "accessories": {},
+  "extra": {
+    "no_sprite_limit": false
+  }
+}

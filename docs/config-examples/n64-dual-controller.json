@@ -1,32 +1,35 @@
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core": {
     "id": "n64",
     "system": "Nintendo 64"
   },
   "input": {
-    "device": "classic_controller",
-    "buttons": {
-      "Down": "classic_dpad_down",
-      "L": "classic_l",
-      "Left": "classic_dpad_left",
-      "Right": "classic_dpad_right",
-      "Start": "classic_plus",
-      "Stick": "classic_lstick",
-      "Up": "classic_dpad_up",
-      "Z": "classic_zl"
-    },
-    "ports": {
-      "2": {
+    "devices": {
+      "classic_controller": {
         "buttons": {
-          "A": "classic_a",
-          "B": "classic_b",
-          "C-Left": "classic_y",
-          "C-Up": "classic_x",
-          "R": "classic_r",
-          "Stick": "classic_rstick",
-          "Z": "classic_zr"
+          "Down": "classic_dpad_down",
+          "L": "classic_l",
+          "Left": "classic_dpad_left",
+          "Right": "classic_dpad_right",
+          "Start": "classic_plus",
+          "Stick": "classic_lstick",
+          "Up": "classic_dpad_up",
+          "Z": "classic_zl"
+        },
+        "ports": {
+          "2": {
+            "buttons": {
+              "A": "classic_a",
+              "B": "classic_b",
+              "C-Left": "classic_y",
+              "C-Up": "classic_x",
+              "R": "classic_r",
+              "Stick": "classic_rstick",
+              "Z": "classic_zr"
+            }
+          }
         }
       }
     },

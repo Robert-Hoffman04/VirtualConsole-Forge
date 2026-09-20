@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use vc_core::config::{InputDeviceId, SaveTarget, VcConfig};
 use vc_core::donor::KeyProvider;
-use vc_core::coreconfig::{build_core_config, CoreConfig, InputMapping};
+use vc_core::coreconfig::{build_core_config, CoreConfig, DeviceSetup, InputMapping};
 use vc_core::registry::{
     find_core, load_registry, ButtonMapping, ControllerPort, CoreDefinition, CoreOption, CoreSource, InputDevice,
     OptionCondition,
@@ -100,52 +100,49 @@ pub fn list_cores(registry_path: String) -> Result<Vec<CoreSummary>, String> {
         .collect())
 }
 
+/// Bindings for one enabled physical controller, as sent by the UI.
 #[derive(Deserialize)]
-pub struct ButtonMappingInput {
-    pub device: String, // "wiimote_sideways" | "classic_controller" | "gamecube"
-    /// Bindings for emulated controller 1.
+pub struct DeviceInput {
+    /// "wiimote_sideways" | "wiimote_nunchuk" | "classic_controller" | "gamecube"
+    pub device: String,
+    /// Bindings for emulated controller 1. May be empty: that means the user
+    /// unmapped everything, not "use defaults".
+    #[serde(default)]
     pub map: std::collections::BTreeMap<String, String>,
     /// Bindings for emulated controllers 2 and up, keyed by port number.
     #[serde(default)]
     pub ports: std::collections::BTreeMap<String, std::collections::BTreeMap<String, String>>,
 }
 
-fn parse_device(name: &str) -> Result<(InputDevice, InputDeviceId), String> {
-    match name {
-        "wiimote_sideways" => Ok((InputDevice::WiimoteSideways, InputDeviceId::WiimoteSideways)),
-        "classic_controller" => Ok((InputDevice::ClassicController, InputDeviceId::ClassicController)),
-        "gamecube" => Ok((InputDevice::Gamecube, InputDeviceId::Gamecube)),
-        other => Err(format!("unknown controller type '{other}'")),
-    }
-}
-
 type OptionValues = std::collections::BTreeMap<String, serde_json::Value>;
 
-/// Build the unified core config from what the UI sent. An empty mapping
-/// means "use the core's defaults for that controller".
+/// Build the unified core config from what the UI sent. `input` lists every
+/// enabled controller in the order the user enabled them; the first is the
+/// one recorded in the legacy binary blob used by donor builds.
 fn assemble_config(
     core: &CoreDefinition,
-    mapping: ButtonMappingInput,
+    input: Vec<DeviceInput>,
     options: Option<OptionValues>,
 ) -> Result<(CoreConfig, InputDeviceId), String> {
-    let ButtonMappingInput { device, map, ports } = mapping;
-    let (device, device_id) = parse_device(&device)?;
-    let ports = ports
-        .into_iter()
-        .map(|(port, buttons)| {
-            port.parse::<u8>()
-                .map(|p| (p, buttons))
-                .map_err(|_| format!("invalid controller port '{port}'"))
-        })
-        .collect::<Result<std::collections::BTreeMap<_, _>, _>>()?;
-    let input = if map.is_empty() && ports.is_empty() {
-        None
-    } else {
-        Some(InputMapping { buttons: map, ports })
-    };
-    let config = build_core_config(core, device, input.as_ref(), &options.unwrap_or_default())
-        .map_err(|e| e.to_string())?;
-    Ok((config, device_id))
+    let mut setups = Vec::with_capacity(input.len());
+    for DeviceInput { device, map, ports } in input {
+        let device: InputDevice = device.parse()?;
+        let ports = ports
+            .into_iter()
+            .map(|(port, buttons)| {
+                port.parse::<u8>()
+                    .map(|p| (p, buttons))
+                    .map_err(|_| format!("invalid controller port '{port}'"))
+            })
+            .collect::<Result<std::collections::BTreeMap<_, _>, _>>()?;
+        setups.push(DeviceSetup { device, mapping: Some(InputMapping { buttons: map, ports }) });
+    }
+    let primary = setups
+        .first()
+        .map(|s| InputDeviceId::from(s.device))
+        .ok_or("select at least one controller")?;
+    let config = build_core_config(core, &setups, &options.unwrap_or_default()).map_err(|e| e.to_string())?;
+    Ok((config, primary))
 }
 
 /// The exact config file a build with these settings would hand to the core,
@@ -154,12 +151,12 @@ fn assemble_config(
 pub fn preview_core_config(
     registry_path: String,
     core_id: String,
-    mapping: ButtonMappingInput,
+    input: Vec<DeviceInput>,
     options: Option<OptionValues>,
 ) -> Result<String, String> {
     let cores = load_registry(&resolve_registry_path(&registry_path)).map_err(|e| e.to_string())?;
     let core = find_core(&cores, &core_id).map_err(|e| e.to_string())?;
-    assemble_config(core, mapping, options).map(|(config, _)| config.to_json())
+    assemble_config(core, input, options).map(|(config, _)| config.to_json())
 }
 
 #[tauri::command]
@@ -170,7 +167,7 @@ pub fn build_wad_command(
     cover_path: Option<String>,
     title: String,
     output_path: String,
-    mapping: ButtonMappingInput,
+    input: Vec<DeviceInput>,
     options: Option<OptionValues>,
     donor_path: Option<String>,
     keys_path: Option<String>,
@@ -199,9 +196,9 @@ pub fn build_wad_command(
         .map_err(|e| e.to_string())?;
 
     // Unified core config file: bindings + option values, validated against
-    // the core's registry entry. Options that don't apply to the chosen
-    // controller resolve to their defaults.
-    let (core_config, device_id) = assemble_config(core, mapping, options)?;
+    // the core's registry entry. Options that don't apply to the enabled
+    // controllers resolve to their defaults.
+    let (core_config, device_id) = assemble_config(core, input, options)?;
 
     // The legacy binary blob below is only used by donor (official VC) builds;
     // its `button_map` is still not translated.

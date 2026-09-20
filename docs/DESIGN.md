@@ -211,3 +211,8 @@ its standard keys and the rules for adding options are documented in
   builds keep the legacy `VcConfig` blob untouched.
 - The frontend mirrors the applicability rules in `coreOptionsData.js`, and the
   Build step previews the exact file via the `preview_core_config` command.
+- Several controllers can be enabled at once (`input.devices`); the Configuration
+  step starts as a set of checkboxes and shows a bindings panel for each checked
+  one. No controller is disabled for any system: registry `default_mappings`
+  seed the defaults, and controllers without an entry get one derived from the
+  Classic layout (`mappingData.js`), leaving whatever has no equivalent unmapped.

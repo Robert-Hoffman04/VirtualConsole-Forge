@@ -1,5 +1,3 @@
-import { effectiveValues } from "./coreOptionsData.js";
-
 // Pure data + helpers for the button-binding UI (no DOM access, so it can be
 // unit-tested in isolation). mapping.js does the rendering.
 //
@@ -26,7 +24,17 @@ const stick = (id, label) => [
 
 const btn = (id, label) => ({ id, label, group: "Buttons" });
 
-/** Physical inputs available on each controller type (keys = the #controller <option> values). */
+/** The controllers a build can enable, in display order. Ids match the registry and the core config file. */
+export const DEVICES = [
+  { id: "classic_controller", label: "Classic Controller", blurb: "Two sticks, shoulder buttons and triggers." },
+  { id: "wiimote_sideways", label: "Wiimote \u2014 Sideways", blurb: "Held like an NES pad. Few buttons." },
+  { id: "wiimote_nunchuk", label: "Wiimote + Nunchuk", blurb: "One analog stick plus the Wiimote's buttons." },
+  { id: "gamecube", label: "GameCube Controller", blurb: "Control stick, C-stick and triggers." },
+];
+
+export const deviceLabel = (id) => DEVICES.find((d) => d.id === id)?.label ?? id;
+
+/** Physical inputs available on each controller type (keys = the ids in DEVICES). */
 export const PHYSICAL_INPUTS = {
   wiimote_sideways: [
     btn("wiimote_1", "1"),
@@ -37,6 +45,19 @@ export const PHYSICAL_INPUTS = {
     btn("wiimote_minus", "\u2212"),
     btn("wiimote_home", "Home"),
     ...dpad("wiimote"),
+  ],
+  wiimote_nunchuk: [
+    btn("wiimote_a", "A"),
+    btn("wiimote_b", "B (trigger)"),
+    btn("wiimote_1", "1"),
+    btn("wiimote_2", "2"),
+    btn("wiimote_plus", "+"),
+    btn("wiimote_minus", "\u2212"),
+    btn("wiimote_home", "Home"),
+    btn("nunchuk_c", "Nunchuk C"),
+    btn("nunchuk_z", "Nunchuk Z"),
+    ...dpad("wiimote"),
+    ...stick("nunchuk_stick", "Nunchuk Stick"),
   ],
   classic_controller: [
     btn("classic_a", "A"),
@@ -70,20 +91,39 @@ export const PHYSICAL_INPUTS = {
 };
 
 /**
- * The GameCube pad is supported by every Virtual Console title, but the
- * registry only ships Classic Controller / Wiimote defaults. When a core has
- * no explicit GameCube mapping we derive one from its Classic mapping using
- * this table (Classic input suffix -> GameCube input id; "" = no equivalent).
+ * Every controller can be enabled for every system: whether a game needs more
+ * buttons than a controller has is the user's call. When the registry has no
+ * explicit default map for a controller, one is derived from the core's
+ * Classic Controller map using these tables (Classic input suffix -> input id
+ * on the target controller; "" = no equivalent, so the button starts unmapped).
  */
-const CLASSIC_TO_GC = {
-  a: "gc_a", b: "gc_b", x: "gc_x", y: "gc_y",
-  l: "gc_l", r: "gc_r", zl: "gc_z", zr: "",
-  plus: "gc_start", minus: "", home: "",
-  dpad_up: "gc_dpad_up", dpad_down: "gc_dpad_down", dpad_left: "gc_dpad_left", dpad_right: "gc_dpad_right",
-  lstick: "gc_lstick", lstick_up: "gc_lstick_up", lstick_down: "gc_lstick_down",
-  lstick_left: "gc_lstick_left", lstick_right: "gc_lstick_right",
-  rstick: "gc_cstick", rstick_up: "gc_cstick_up", rstick_down: "gc_cstick_down",
-  rstick_left: "gc_cstick_left", rstick_right: "gc_cstick_right",
+const DPAD_TO = (prefix) => ({
+  dpad_up: `${prefix}_dpad_up`, dpad_down: `${prefix}_dpad_down`,
+  dpad_left: `${prefix}_dpad_left`, dpad_right: `${prefix}_dpad_right`,
+});
+const STICK_TO = (from, to) => ({
+  [from]: to, [`${from}_up`]: `${to}_up`, [`${from}_down`]: `${to}_down`,
+  [`${from}_left`]: `${to}_left`, [`${from}_right`]: `${to}_right`,
+});
+
+const DERIVE_FROM_CLASSIC = {
+  gamecube: {
+    a: "gc_a", b: "gc_b", x: "gc_x", y: "gc_y", l: "gc_l", r: "gc_r", zl: "gc_z", zr: "",
+    plus: "gc_start", minus: "", home: "",
+    ...DPAD_TO("gc"), ...STICK_TO("lstick", "gc_lstick"), ...STICK_TO("rstick", "gc_cstick"),
+  },
+  // Held sideways like an NES pad: 1 and 2 are the face buttons.
+  wiimote_sideways: {
+    a: "wiimote_2", b: "wiimote_1", x: "", y: "", l: "", r: "", zl: "", zr: "",
+    plus: "wiimote_plus", minus: "wiimote_minus", home: "wiimote_home",
+    ...DPAD_TO("wiimote"),
+  },
+  // Wiimote upright with a Nunchuk: one analog stick, C and Z, and the Wiimote's buttons.
+  wiimote_nunchuk: {
+    a: "wiimote_a", b: "wiimote_b", x: "wiimote_1", y: "wiimote_2", l: "nunchuk_c", r: "", zl: "nunchuk_z", zr: "",
+    plus: "wiimote_plus", minus: "wiimote_minus", home: "wiimote_home",
+    ...DPAD_TO("wiimote"), ...STICK_TO("lstick", "nunchuk_stick"),
+  },
 };
 
 const portOf = (m) => m.port ?? 1;
@@ -106,35 +146,26 @@ function pickEntry(core, device, port, effective) {
  * Default bindings for `core` on `device` for emulated controller `port`,
  * given the effective option values.
  * Returns { supported, derived, map }:
- *  - supported: false when the registry has no map for that device/port;
- *  - derived: true when the map was translated (GameCube from Classic)
+ *  - supported: false when there is nothing to start from (no registry map
+ *    for the device and no Classic map to derive from); the bindings then
+ *    all start unmapped;
+ *  - derived: true when the map was translated from the Classic layout
  *    rather than read from the registry.
  */
 export function defaultsFor(core, device, port = 1, effective = {}) {
   const exact = pickEntry(core, device, port, effective);
   if (exact) return { supported: true, derived: false, map: { ...exact.map } };
 
-  if (device === "gamecube") {
-    const classic = pickEntry(core, "classic_controller", port, effective);
-    if (classic) {
-      const map = {};
-      for (const [button, id] of Object.entries(classic.map)) {
-        map[button] = id ? (CLASSIC_TO_GC[id.replace(/^classic_/, "")] ?? "") : "";
-      }
-      return { supported: true, derived: true, map };
+  const table = DERIVE_FROM_CLASSIC[device];
+  const classic = table && pickEntry(core, "classic_controller", port, effective);
+  if (classic) {
+    const map = {};
+    for (const [button, id] of Object.entries(classic.map)) {
+      map[button] = id ? (table[id.replace(/^classic_/, "")] ?? "") : "";
     }
+    return { supported: true, derived: true, map };
   }
   return { supported: false, derived: false, map: {} };
-}
-
-/**
- * Can this core be played with `device` at all? False for e.g. the sideways
- * Wiimote on systems that need more buttons. (Independent of options.)
- */
-export function deviceSupported(core, device) {
-  const maps = core?.default_mappings ?? [];
-  const has = (d) => maps.some((m) => m.device === d && portOf(m) === 1);
-  return has(device) || (device === "gamecube" && has("classic_controller"));
 }
 
 /** Emulated controllers that exist right now, in port order: [{ port, label }]. */
@@ -155,8 +186,7 @@ export function allPorts(core) {
  * (which ports exist and which map variant each uses). When it changes, the
  * bindings are reset to the new layout's defaults instead of being kept.
  */
-export function layoutKey(core, device, values) {
-  const effective = effectiveValues(core, device, values);
+export function layoutKey(core, device, effective) {
   return JSON.stringify(
     activePorts(core, effective).map(({ port }) => {
       const entry = pickEntry(core, device, port, effective) ?? pickEntry(core, "classic_controller", port, effective);
@@ -190,9 +220,8 @@ export function consoleButtons(core, port = 1) {
  * option has a given value (the registry's `button_requires`), e.g. Genesis
  * X/Y/Z/Mode with the six-button pad.
  */
-export function activeButtons(core, device, values, port = 1) {
+export function activeButtons(core, effective, port = 1) {
   const requires = core?.button_requires ?? {};
-  const effective = effectiveValues(core, device, values);
   return consoleButtons(core, port).filter((b) => !requires[b] || effective[requires[b].option] === requires[b].equals);
 }
 

@@ -1,4 +1,4 @@
-# Core config file (`vcforge-config` v1)
+# Core config file (`vcforge-config` v2)
 
 Every emulator core reads the **same JSON document** for its input bindings
 and settings, so the common interface layer on the Wii side can be written
@@ -12,6 +12,9 @@ the legacy 64-byte binary blob there. `vc-cli --config-out PATH` writes the
 file standalone, and the desktop app shows the exact file under
 **Build → Core config file**.
 
+Version 2 (current) lets several controllers be enabled at once, so bindings
+moved from `input.device` / `input.buttons` to `input.devices.<device>.buttons`.
+
 Ready-made samples for every core are in [`config-examples/`](config-examples/)
 (checked by a test, so they never drift from the code).
 
@@ -20,12 +23,13 @@ Ready-made samples for every core are in [`config-examples/`](config-examples/)
 ```json
 {
   "format": "vcforge-config",
-  "version": 1,
+  "version": 2,
   "core":  { "id": "n64", "system": "Nintendo 64" },
   "input": {
-    "device": "gamecube",
-    "buttons": { "A": "gc_a", "Z": "gc_z", "Stick": "gc_lstick" },
-    "ports": {},
+    "devices": {
+      "classic_controller": { "buttons": { "A": "classic_a", "Z": "classic_zl" }, "ports": {} },
+      "gamecube":           { "buttons": { "A": "gc_a", "Z": "gc_z", "Stick": "gc_lstick" }, "ports": {} }
+    },
     "rumble_strength": 80
   },
   "video":       { "filter": "smooth" },
@@ -53,7 +57,7 @@ Ready-made samples for every core are in [`config-examples/`](config-examples/)
 | Section | Contents |
 |---|---|
 | `core` | `id` and `system` of the core the file was made for. |
-| `input` | `device`, `buttons`, `ports`, plus input settings (`turbo`, `six_button`, `dual_controller`, `rumble_strength`, ...). |
+| `input` | `devices` (one entry per enabled controller), plus input settings (`turbo`, `six_button`, `dual_controller`, `rumble_strength`, ...). |
 | `video` | Timing, filtering, cropping, layout, palette. |
 | `audio` | Audio processing. |
 | `system` | What the emulated machine is (region, ...). |
@@ -63,10 +67,21 @@ Ready-made samples for every core are in [`config-examples/`](config-examples/)
 
 ## Input
 
-`input.device` is `wiimote_sideways`, `classic_controller` or `gamecube`.
+`input.devices` has one entry per **enabled physical controller**, keyed by
+device name: `classic_controller`, `wiimote_sideways`, `wiimote_nunchuk` (a
+Wiimote held upright with a Nunchuk) or `gamecube`. At least one is always
+present. **All listed devices are active at the same time**: pressing an
+input on any of them triggers the console button bound to it, and each device
+has its own, independent bindings.
 
-`input.buttons` maps each **console button** (as named by the core: `A`,
-`Start`, `C-Up`, `Mode`, `Button 1`, `II`, ...) to a **physical input id**.
+Every core accepts every controller. A controller with fewer inputs than the
+system has buttons (say, the sideways Wiimote on the SNES) is not refused,
+since many games don't use every button. The extra console buttons are simply
+left unmapped, and the user decides which ones matter.
+
+Each device entry has `buttons` and `ports`. `buttons` maps each **console
+button** (as named by the core: `A`, `Start`, `C-Up`, `Mode`, `Button 1`,
+`II`, ...) to a **physical input id**.
 
 - Only buttons that exist under the current options are listed (see
   [Buttons that depend on options](#buttons-that-depend-on-options)).
@@ -76,6 +91,7 @@ Ready-made samples for every core are in [`config-examples/`](config-examples/)
 | Device | Ids |
 |---|---|
 | `wiimote_sideways` | `wiimote_1`, `_2`, `_a`, `_b`, `_plus`, `_minus`, `_home`, `_dpad_{up,down,left,right}` |
+| `wiimote_nunchuk` | the `wiimote_*` ids above, plus `nunchuk_c`, `nunchuk_z`, `nunchuk_stick` (whole stick) and `nunchuk_stick_{up,down,left,right}` |
 | `classic_controller` | `classic_{a,b,x,y,l,r,zl,zr,plus,minus,home}`, `classic_dpad_{up,down,left,right}`, `classic_lstick`, `classic_rstick` (whole stick) and `classic_{l,r}stick_{up,down,left,right}` |
 | `gamecube` | `gc_{a,b,x,y,z,l,r,start}`, `gc_dpad_{up,down,left,right}`, `gc_lstick`, `gc_cstick` and `gc_{l,c}stick_{up,down,left,right}` |
 
@@ -84,16 +100,19 @@ live on a stick (N64 `C-Up`) map to a direction id.
 
 ### One physical controller, several emulated controllers
 
-`input.buttons` is always emulated controller 1. When the core exposes more
-emulated controllers that the same physical controller drives, the others are
-listed in `input.ports`, keyed by port number. It is `{}` when there is only
-one.
+A device's `buttons` are always emulated controller 1. When the core exposes
+more emulated controllers that the same physical controller drives, the others
+are listed in that device's `ports`, keyed by port number. It is `{}` when
+there is only one.
 
 ```json
 "input": {
-  "device": "classic_controller",
-  "buttons": { "Stick": "classic_lstick", "Z": "classic_zl", "Start": "classic_plus" },
-  "ports": { "2": { "buttons": { "Stick": "classic_rstick", "Z": "classic_zr", "A": "classic_a" } } },
+  "devices": {
+    "classic_controller": {
+      "buttons": { "Stick": "classic_lstick", "Z": "classic_zl", "Start": "classic_plus" },
+      "ports": { "2": { "buttons": { "Stick": "classic_rstick", "Z": "classic_zr", "A": "classic_a" } } }
+    }
+  },
   "dual_controller": true
 }
 ```
@@ -129,7 +148,7 @@ different type or disallowed values, which is what keeps cores consistent.
 |---|---|---|
 | `input.turbo` | toggle | |
 | `input.six_button` | toggle | adds buttons, see below |
-| `input.dual_controller` | toggle | one pad drives two emulated controllers, see below |
+| `input.dual_controller` | toggle | one pad drives two emulated controllers, see above |
 | `input.rumble_strength` | number | 0-100 (%) |
 | `video.timing` | select | `ntsc`, `pal` |
 | `video.crop_overscan` | toggle | |
@@ -192,8 +211,9 @@ key in the file:
   `step`/`unit`).
 - `visible_when: { option, equals }` shows the option only while an
   **earlier** option has that value.
-- `devices` restricts the option to certain controllers (e.g. rumble). In the
-  app it is shown disabled with a hint.
+- `devices` restricts the option to certain controllers (e.g. rumble). It
+  applies while at least one of them is enabled; otherwise the app shows it
+  disabled with a hint.
 - Options that don't apply (condition unmet, wrong controller) are written
   with their `default`, whatever the UI sent.
 - Choice values are part of the contract with the core: renaming one is a

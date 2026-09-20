@@ -34,16 +34,15 @@ function rowHtml(option) {
   return `<div class="option-row" data-option-row="${escapeHtml(option.id)}">
     <div class="option-text">
       <label for="opt-${escapeHtml(option.id)}" title="Config key: ${escapeHtml(option.key ?? `extra.${option.id}`)}">${escapeHtml(option.label)}</label>${desc}
-      <span class="option-hint" hidden>Not available with the selected controller.</span>
+      <span class="option-hint" hidden>Not available with the selected controllers.</span>
     </div>
     <div class="option-control"></div>
   </div>`;
 }
 
-/** Show/hide/disable rows to match the current values and controller. Cheap; safe to call on every change. */
+/** Show/hide/disable rows to match the current values and enabled controllers. Cheap; safe to call on every change. */
 function applyState(core) {
-  const device = $("#controller").value;
-  const states = evaluateOptions(core, device, state.options.values);
+  const states = evaluateOptions(core, state.devices, state.options.values);
   const rows = new Map([...document.querySelectorAll("[data-option-row]")].map((r) => [r.dataset.optionRow, r]));
 
   for (const { option, value, shown, enabled } of states) {
@@ -70,6 +69,12 @@ function applyState(core) {
   });
 }
 
+/** Re-evaluate which options apply (e.g. after a controller was enabled/disabled) without rebuilding the panel. */
+export function applyOptionState() {
+  const core = selectedCore();
+  if (core) applyState(core);
+}
+
 /**
  * Rebuild the panel for the currently selected core. Values the user set for
  * this core earlier in the session are restored.
@@ -85,7 +90,7 @@ export function refreshCoreOptions() {
   $("#core-options-description").textContent = !core
     ? "Select a core to see its options."
     : options.length
-      ? "Settings and accessories specific to this system. Options that don't apply to the selected controller are disabled."
+      ? "Settings and accessories specific to this system. Options that don't apply to the enabled controllers are disabled."
       : "This core has no additional options.";
   $("#reset-options").hidden = options.length === 0;
 

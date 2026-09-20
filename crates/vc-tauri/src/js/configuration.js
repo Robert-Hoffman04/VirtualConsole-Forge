@@ -1,21 +1,27 @@
 // Entry points for "something on the Configuration step changed": rebuild
 // everything that depends on it, in the right order.
 
-import { syncControllerChoices, resetMapping, syncMappingRows } from "./mapping.js";
-import { refreshCoreOptions } from "./coreOptions.js";
+import { resetMapping, syncMappingRows } from "./mapping.js";
+import { refreshCoreOptions, applyOptionState } from "./coreOptions.js";
 import { updateSummary } from "./summary.js";
 import { refreshConfigPreview } from "./configPreview.js";
 
 /**
- * The selected core or controller changed. Order matters: controller
- * availability first (it can switch the controller), then options (their
- * applicability depends on the controller), then bindings (which buttons
- * exist depends on the options).
+ * The selected core changed. Order matters: options first (their
+ * applicability depends on which controllers are enabled), then bindings
+ * (which buttons exist depends on the options).
  */
 export function refreshConfiguration() {
-  syncControllerChoices();
   refreshCoreOptions();
   resetMapping();
+  updateSummary();
+  refreshConfigPreview();
+}
+
+/** A controller was checked or unchecked: options that are controller-specific may (un)apply. */
+export function onDevicesChanged() {
+  applyOptionState();
+  syncMappingRows();
   updateSummary();
   refreshConfigPreview();
 }
