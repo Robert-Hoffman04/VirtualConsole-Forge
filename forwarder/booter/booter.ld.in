@@ -1,0 +1,28 @@
+/* Preprocessed with cpp -P so the addresses come from vcf_memmap.h. */
+#include "vcf_memmap.h"
+
+ENTRY(_start)
+
+MEMORY
+{
+    ram (rwx) : ORIGIN = VCF_BOOTER_ADDR, LENGTH = VCF_BOOTER_SIZE
+}
+
+SECTIONS
+{
+    /* crt0 first: the blob's first byte is the entry point the loader calls. */
+    .text : { *(.text.crt0) *(.text .text.*) } > ram
+    .rodata : { *(.rodata .rodata.*) } > ram
+    .data : { *(.data .data.*) *(.sdata .sdata.*) } > ram
+    .bss : { *(.bss .bss.*) *(.sbss .sbss.*) *(COMMON) } > ram
+
+    __stack_top = ORIGIN(ram) + LENGTH(ram);
+
+    /DISCARD/ : { *(.comment) *(.eh_frame*) *(.note*) *(.gnu*) }
+}
+
+/* objcopy -O binary drops .bss, so the booter must not have any. */
+ASSERT(SIZEOF(.bss) == 0, "booter must not use .bss")
+/* Leave at least 16 KiB of the region for the stack. */
+ASSERT(SIZEOF(.text) + SIZEOF(.rodata) + SIZEOF(.data) < LENGTH(ram) - 0x4000,
+       "booter too large: no room left for the stack")

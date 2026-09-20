@@ -16,6 +16,9 @@ either:
   legitimately own, using a Wii common key the user supplies from their
   own dump. Neither the donor WAD nor the key ever ships with this tool.
 
+Forwarder-style WADs (a generic loader + a config file, core and ROM read from SD/USB)
+are described in [`docs/FORWARDER.md`](docs/FORWARDER.md).
+
 See [`docs/DESIGN.md`](docs/DESIGN.md) for the full pipeline, content
 
 The file every emulator core reads for its input bindings and settings is specified in `docs/CONFIG_FORMAT.md`.
@@ -34,6 +37,7 @@ crates/
       styles.css         all styling
       js/                one module per concern (see below)
 cores/        registry.json (core plugin definitions) + any Bundled DOLs
+forwarder/    generic Wii-side loader + booter (C, devkitPPC) for forwarder WADs
 docs/         design notes
 ```
 

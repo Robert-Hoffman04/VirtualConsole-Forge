@@ -3,6 +3,8 @@ use std::path::PathBuf;
 use vc_core::config::{InputDeviceId, SaveTarget, VcConfig};
 use vc_core::donor::KeyProvider;
 use vc_core::coreconfig::{build_core_config, DeviceSetup};
+use vc_core::forwarder::{build_forwarder_wad, ForwarderWadRequest};
+use vc_core::launch::Device;
 use vc_core::options::parse_option_args;
 use vc_core::registry::{find_core, load_registry, CoreSource, InputDevice};
 use vc_core::wad::{build_wad, WadBuildRequest};
@@ -19,9 +21,10 @@ struct Args {
     #[arg(long)]
     core: String,
 
-    /// Path to the ROM file the user sourced themselves
+    /// Path to the ROM file the user sourced themselves. Required unless
+    /// --forwarder is used (then the ROM stays on the SD card/USB drive).
     #[arg(long)]
-    rom: PathBuf,
+    rom: Option<PathBuf>,
 
     /// Optional cover art for the banner
     #[arg(long)]
@@ -63,6 +66,96 @@ struct Args {
     /// (non-official) cores get this file embedded in the WAD as content 3.
     #[arg(long, value_name = "PATH")]
     config_out: Option<PathBuf>,
+
+    /// Build a forwarder WAD: a generic loader plus a small launch.cfg, with
+    /// no ROM and no core inside. The core DOL and the ROM are read from the
+    /// SD card or USB drive when the channel is launched. Bundled cores only.
+    #[arg(long)]
+    forwarder: bool,
+
+    /// [--forwarder] The precompiled generic loader DOL (`make -C forwarder install`).
+    #[arg(long, default_value = "forwarder/prebuilt/main.dol")]
+    loader: PathBuf,
+
+    /// [--forwarder] Storage device holding the core and the ROM: sd or usb.
+    #[arg(long, default_value = "sd")]
+    device: String,
+
+    /// [--forwarder] Where the ROM will be on the device, e.g. /vcforge/roms/game.gb.
+    /// Defaults to /vcforge/roms/<file name of --rom> when --rom is given.
+    #[arg(long, value_name = "PATH")]
+    device_rom: Option<String>,
+
+    /// [--forwarder] Where the core DOL will be on the device.
+    /// Defaults to /vcforge/cores/<core id>.dol.
+    #[arg(long, value_name = "PATH")]
+    device_core: Option<String>,
+
+    /// [--forwarder] Also write launch.cfg (WAD content 2) to this path.
+    #[arg(long, value_name = "PATH")]
+    launch_cfg_out: Option<PathBuf>,
+}
+
+// Placeholder title id / title key allocation — real version tracks
+// allocated ids in a local database to avoid collisions across builds.
+const PLACEHOLDER_TITLE_ID: [u8; 8] = [0x00, 0x01, 0x00, 0x01, 0xDE, 0xAD, 0xBE, 0xEF];
+
+/// Forwarder-mode build: see `vc_core::forwarder`.
+fn run_forwarder(
+    args: &Args,
+    core: &vc_core::CoreDefinition,
+    cover_bytes: Option<Vec<u8>>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let device: Device = args.device.parse()?;
+
+    let rom_path = match (&args.device_rom, &args.rom) {
+        (Some(p), _) => p.clone(),
+        (None, Some(local)) => {
+            let name = local.file_name().and_then(|n| n.to_str()).ok_or("--rom has no file name")?;
+            format!("/vcforge/roms/{name}")
+        }
+        (None, None) => return Err("--forwarder needs --device-rom (or --rom to derive it from)".into()),
+    };
+
+    let option_values = parse_option_args(core, &args.opts)?;
+    let core_config = build_core_config(core, InputDevice::ClassicController, None, &option_values)?;
+    if let Some(path) = &args.config_out {
+        std::fs::write(path, core_config.to_json())?;
+        println!("wrote core config to {}", path.display());
+    }
+
+    let req = ForwarderWadRequest {
+        core,
+        loader_dol: &args.loader,
+        title: args.title.clone(),
+        cover_art: cover_bytes.as_deref(),
+        device,
+        core_path: args.device_core.clone(),
+        rom_path,
+        core_config: core_config.to_bytes(),
+        title_id: PLACEHOLDER_TITLE_ID,
+        title_key: [0u8; 16],
+    };
+
+    // Write launch.cfg first: it doesn't depend on the loader, banner or WAD
+    // container, so it works even while those are unfinished.
+    let launch = vc_core::forwarder::build_launch_image(&req)?;
+    if let Some(path) = &args.launch_cfg_out {
+        std::fs::write(path, launch.to_bytes()?)?;
+        println!("wrote launch.cfg to {}", path.display());
+    }
+
+    let wad_bytes = build_forwarder_wad(req)?;
+    std::fs::write(&args.output, wad_bytes)?;
+    println!("wrote {}", args.output.display());
+
+    let dev = device.as_str();
+    println!("\nPut these on the {} before launching the channel:", dev.to_uppercase());
+    if let CoreSource::Bundled { dol_path } = &core.core_source {
+        println!("  core: {}  ->  {dev}:{}", dol_path.display(), launch.core_path);
+    }
+    println!("  ROM:  your {} ROM  ->  {dev}:{}", core.system, launch.rom_path);
+    Ok(())
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -72,6 +165,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let core = find_core(&cores, &args.core)?;
 
     let cover_bytes = args.cover.as_ref().map(std::fs::read).transpose()?;
+
+    if args.forwarder {
+        return run_forwarder(&args, core, cover_bytes);
+    }
+    let rom = args.rom.as_ref().ok_or("--rom is required (or use --forwarder)")?;
 
     if matches!(core.core_source, CoreSource::Donor { .. }) && (args.donor.is_none() || args.keys.is_none()) {
         if let CoreSource::Donor { donor_label, .. } = &core.core_source {
@@ -86,9 +184,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let key_provider = args.keys.as_deref().map(KeyProvider::from_file).transpose()?;
 
-    // Placeholder title id / title key allocation — real version tracks
-    // allocated ids in a local database to avoid collisions across builds.
-    let title_id: [u8; 8] = [0x00, 0x01, 0x00, 0x01, 0xDE, 0xAD, 0xBE, 0xEF];
+    let title_id = PLACEHOLDER_TITLE_ID;
     let title_key: [u8; 16] = [0u8; 16];
 
     let option_values = parse_option_args(core, &args.opts)?;
@@ -114,7 +210,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let wad_bytes = build_wad(WadBuildRequest {
         core,
-        rom_path: &args.rom,
+        rom_path: rom,
         cover_art: cover_bytes.as_deref(),
         title: args.title,
         config,

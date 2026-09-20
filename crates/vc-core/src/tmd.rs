@@ -25,6 +25,10 @@ pub struct TmdBuildRequest {
     pub title_id: [u8; 8],
     pub title_version: u16,
     pub ios_version: u16,
+    /// Index of the content the System Menu runs as the channel's DOL.
+    /// The legacy layout has the DOL at 0 and passes 0; the forwarder layout
+    /// has the banner at 0 and the DOL at 1.
+    pub boot_index: u16,
     pub contents: Vec<ContentEntry>,
 }
 
@@ -49,7 +53,7 @@ pub fn build_tmd(req: &TmdBuildRequest) -> Vec<u8> {
     body.extend_from_slice(&[0u8; 4]); // title type
     body.extend_from_slice(&[0u8; 2]); // group id
     body.extend_from_slice(&req.title_version.to_be_bytes());
-    body.extend_from_slice(&[0u8; 2]); // boot index
+    body.extend_from_slice(&req.boot_index.to_be_bytes()); // boot index
     body.extend_from_slice(&(req.contents.len() as u16).to_be_bytes());
 
     // --- content table ---

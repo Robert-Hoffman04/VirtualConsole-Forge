@@ -12,6 +12,8 @@
 //! - `config`    — VcConfig struct: baked-in button mapping + settings
 //! - `options`   — per-core option validation and resolution
 //! - `coreconfig` — the unified core config file (JSON) handed to emulator cores
+//! - `launch`    — launch image handed from the forwarder loader to a core
+//! - `forwarder` — forwarder-mode WAD: generic main.dol + launch.cfg, no ROM/core inside
 //! - `banner`    — banner.bin generation from cover art + title text
 //! - `tmd`       — Title Metadata structure/builder
 //! - `ticket`    — Ticket structure/builder
@@ -26,6 +28,8 @@ pub mod donor;
 pub mod donor_store;
 pub mod coreconfig;
 pub mod error;
+pub mod forwarder;
+pub mod launch;
 pub mod options;
 pub mod registry;
 pub mod rom;

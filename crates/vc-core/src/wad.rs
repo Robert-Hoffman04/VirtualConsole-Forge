@@ -97,6 +97,28 @@ pub fn build_wad(req: WadBuildRequest) -> Result<Vec<u8>, VcError> {
         (3, 0x0001, config_bytes),
     ];
 
+    Ok(assemble_wad(
+        req.title_id,
+        req.title_key,
+        req.core.ios_version,
+        0,
+        raw_contents,
+    ))
+}
+
+/// Everything downstream of "here are the contents": hash each one, build
+/// and fakesign the TMD and ticket, encrypt the contents and concatenate the
+/// sections. Shared by the legacy `build_wad` (boot index 0) and the
+/// forwarder builder (`forwarder.rs`, boot index 1).
+///
+/// `raw_contents` is `(index, content_type, plaintext)` in index order.
+pub(crate) fn assemble_wad(
+    title_id: [u8; 8],
+    title_key: [u8; 16],
+    ios_version: u16,
+    boot_index: u16,
+    raw_contents: Vec<(u16, u16, Vec<u8>)>,
+) -> Vec<u8> {
     let mut content_entries = Vec::new();
     let mut encrypted_blobs = Vec::new();
 
@@ -109,13 +131,14 @@ pub fn build_wad(req: WadBuildRequest) -> Result<Vec<u8>, VcError> {
             size: data.len() as u64,
             sha1: hash,
         });
-        encrypted_blobs.push(encrypt_content(data, &req.title_key, *index));
+        encrypted_blobs.push(encrypt_content(data, &title_key, *index));
     }
 
     let tmd_body = build_tmd(&TmdBuildRequest {
-        title_id: req.title_id,
+        title_id,
         title_version: 0,
-        ios_version: req.core.ios_version,
+        boot_index,
+        ios_version,
         contents: content_entries,
     });
     let tmd_sig = sign_fakesigned(&tmd_body);
@@ -123,11 +146,11 @@ pub fn build_wad(req: WadBuildRequest) -> Result<Vec<u8>, VcError> {
     // Title key would be encrypted with the Wii common key here before
     // being embedded in the ticket; left as a passthrough placeholder
     // until crypto::encrypt_title_key is implemented.
-    let encrypted_title_key = req.title_key;
+    let encrypted_title_key = title_key;
     let ticket_body = build_ticket(
         &TicketBuildRequest {
-            title_id: req.title_id,
-            title_key: req.title_key,
+            title_id,
+            title_key,
             common_key_index: 0,
         },
         encrypted_title_key,
@@ -147,5 +170,5 @@ pub fn build_wad(req: WadBuildRequest) -> Result<Vec<u8>, VcError> {
         out.extend_from_slice(blob);
     }
 
-    Ok(out)
+    out
 }

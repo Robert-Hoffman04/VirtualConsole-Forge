@@ -40,4 +40,7 @@ pub enum VcError {
 
     #[error("WAD assembly failed: {0}")]
     WadAssembly(String),
+
+    #[error("forwarder error: {0}")]
+    Forwarder(String),
 }
