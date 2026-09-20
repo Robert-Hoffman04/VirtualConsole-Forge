@@ -1,144 +1,150 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VirtualConsole-Forge</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark">⌁</div>
-      <div>
-        <div class="brand-name">VirtualConsole-Forge</div>
-        <div class="brand-subtitle">WAD Builder for Virtual Console</div>
-      </div>
-    </div>
-
-    <nav class="nav">
-      <button class="active" data-view="build"><span class="nav-icon">▣</span><span>New Build</span></button>
-      <button data-view="ids"><span class="nav-icon">#</span><span>Title ID Checker</span></button>
-      <button data-view="settings"><span class="nav-icon">⚙</span><span>Settings</span></button>
-    </nav>
-
-    <div class="sidebar-status">
-      <div class="status-line"><span class="dot"></span><span>Cores Available</span></div>
-      <div class="status-value" id="core-count">—</div>
-      <div class="status-caption">Loaded from registry</div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <header class="topbar">
-      <div>
-        <div class="page-title" id="page-title">New Build</div>
-        <div class="page-description" id="page-description">Create and validate a Virtual Console title.</div>
-      </div>
-      <div class="top-actions">
-        <button class="button ghost" id="reset-build">Reset</button>
-      </div>
-    </header>
-
-    <div class="content">
-      <section class="view active" id="view-build">
-        <div class="stepper" id="stepper">
-          <div class="step current" data-step="0"><span class="step-number">1</span><span>Source</span></div>
-          <div class="step-line"></div>
-          <div class="step" data-step="1"><span class="step-number">2</span><span>Configuration</span></div>
-          <div class="step-line"></div>
-          <div class="step" data-step="2"><span class="step-number">3</span><span>Preview</span></div>
-          <div class="step-line"></div>
-          <div class="step" data-step="3"><span class="step-number">4</span><span>Build</span></div>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">⌁</div>
+        <div>
+          <div class="brand-name">VirtualConsole-Forge</div>
+          <div class="brand-subtitle">WAD Builder for Virtual Console</div>
         </div>
+      </div>
 
-        <div id="step-source" class="step-panel">
-          <div class="workspace-grid">
-            <div class="panel">
-              <div class="panel-header">
-                <div class="panel-title">Source</div>
-                <div class="panel-description">Choose the ROM, core, title information, and artwork for this build.</div>
-              </div>
-              <div class="panel-body">
-                <div class="form-grid">
-                  <div class="field full">
-                    <label>ROM File <span class="hint">Required</span></label>
-                    <div class="dropzone" id="rom-drop">
-                      <div>
-                        <div class="drop-icon">⇩</div>
-                        <div class="drop-title">Click or drop a ROM here</div>
-                        <div class="drop-subtitle">Opens your file browser -- filtered to this core's extensions</div>
-                        <div class="file-name" id="rom-name"></div>
-                      </div>
-                    </div>
-                  </div>
+      <nav class="nav">
+        <button class="active" data-view="build"><span class="nav-icon">▣</span><span>New Build</span></button>
+        <button data-view="ids"><span class="nav-icon">#</span><span>Title ID Checker</span></button>
+        <button data-view="settings"><span class="nav-icon">⚙</span><span>Settings</span></button>
+      </nav>
 
-                  <div class="field">
-                    <label for="core">Core</label>
-                    <select id="core"></select>
-                  </div>
+      <div class="sidebar-status">
+        <div class="status-line"><span class="dot"></span><span>Cores Available</span></div>
+        <div class="status-value" id="core-count">—</div>
+        <div class="status-caption">Loaded from registry</div>
+      </div>
+    </aside>
 
-                  <div class="field">
-                    <label for="title">Title</label>
-                    <input id="title" placeholder="Enter the title name">
-                  </div>
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="page-title" id="page-title">New Build</div>
+          <div class="page-description" id="page-description">Create and validate a Virtual Console title.</div>
+        </div>
+        <div class="top-actions">
+          <button class="button ghost" id="reset-build">Reset</button>
+        </div>
+      </header>
 
-                  <div class="field">
-                    <label>Cover Art <span class="hint">Optional</span></label>
-                    <div class="dropzone" id="cover-drop">
-                      <div>
-                        <div class="drop-icon">▧</div>
-                        <div class="drop-title">Click or drop artwork here</div>
-                        <div class="drop-subtitle">PNG, JPEG, or other supported image</div>
-                        <div class="file-name" id="cover-name"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="field">
-                    <label for="title-id">Title ID <span class="hint">Must be unique</span></label>
-                    <div class="inline">
-                      <input id="title-id" value="000100014E455341">
-                      <button class="button" id="check-id-inline">Check</button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="validation" id="source-validation">
-                  <span>✓</span><span>Ready to configure. Required source information will be validated before build.</span>
-                </div>
-              </div>
-            </div>
-
-            <aside class="panel preview-card">
-              <div class="side-section">
-                <div class="side-heading">Device Preview</div>
-                <div class="device-preview">
-                  <div class="device-screen">
-                    <div class="menu-header"><span>Wii Menu</span><span>Sat 6/10</span></div>
-                    <div class="channel-stage">
-                      <div class="channel-tile">
-                        <div class="channel-art placeholder" id="source-preview-art"></div>
-                        <div class="channel-title" id="source-preview-title">Untitled Channel</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="device-footer"><span>Wii</span><span>✉</span></div>
-                </div>
-                <div class="preview-caption">Preview updates from the title and cover art you select.</div>
-              </div>
-            </aside>
+      <div class="content">
+        <section class="view active" id="view-build">
+          <div class="stepper" id="stepper">
+            <div class="step current" data-step="0"><span class="step-number">1</span><span>Source</span></div>
+            <div class="step-line"></div>
+            <div class="step" data-step="1"><span class="step-number">2</span><span>Configuration</span></div>
+            <div class="step-line"></div>
+            <div class="step" data-step="2"><span class="step-number">3</span><span>Preview</span></div>
+            <div class="step-line"></div>
+            <div class="step" data-step="3"><span class="step-number">4</span><span>Build</span></div>
           </div>
-          <div class="footer-nav"><span></span><div class="right"><button class="button primary next-step">Continue →</button></div></div>
-        </div>
 
-        <div id="step-config" class="step-panel" hidden>
-          <div class="workspace-grid">
+          <div id="step-source" class="step-panel">
+            <div class="workspace-grid">
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-title">Source</div>
+                  <div class="panel-description">Choose the ROM, core, title information, and artwork for this build.
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div class="form-grid">
+                    <div class="field full">
+                      <label>ROM File <span class="hint">Required</span></label>
+                      <div class="dropzone" id="rom-drop">
+                        <div>
+                          <div class="drop-icon">⇩</div>
+                          <div class="drop-title">Click or drop a ROM here</div>
+                          <div class="drop-subtitle">Opens your file browser -- filtered to this core's extensions</div>
+                          <div class="file-name" id="rom-name"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="field">
+                      <label for="core">Core</label>
+                      <select id="core"></select>
+                    </div>
+
+                    <div class="field">
+                      <label for="title">Title</label>
+                      <input id="title" placeholder="Enter the title name">
+                    </div>
+
+                    <div class="field">
+                      <label>Cover Art <span class="hint">Optional</span></label>
+                      <div class="dropzone" id="cover-drop">
+                        <div>
+                          <div class="drop-icon">▧</div>
+                          <div class="drop-title">Click or drop artwork here</div>
+                          <div class="drop-subtitle">PNG, JPEG, or other supported image</div>
+                          <div class="file-name" id="cover-name"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="field">
+                      <label for="title-id">Title ID <span class="hint">Must be unique</span></label>
+                      <div class="inline">
+                        <input id="title-id" value="000100014E455341">
+                        <button class="button" id="check-id-inline">Check</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="validation" id="source-validation">
+                    <span>✓</span><span>Ready to configure. Required source information will be validated before
+                      build.</span>
+                  </div>
+                </div>
+              </div>
+
+              <aside class="panel preview-card">
+                <div class="side-section">
+                  <div class="side-heading">Device Preview</div>
+                  <div class="device-preview">
+                    <div class="device-screen">
+                      <div class="menu-header"><span>Wii Menu</span><span>Sat 6/10</span></div>
+                      <div class="channel-stage">
+                        <div class="channel-tile">
+                          <div class="channel-art placeholder" id="source-preview-art"></div>
+                          <div class="channel-title" id="source-preview-title">Untitled Channel</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="device-footer"><span>Wii</span><span>✉</span></div>
+                  </div>
+                  <div class="preview-caption">Preview updates from the title and cover art you select.</div>
+                </div>
+              </aside>
+            </div>
+            <div class="footer-nav"><span></span>
+              <div class="right"><button class="button primary next-step">Continue →</button></div>
+            </div>
+          </div>
+
+          <div id="step-config" class="step-panel" hidden>
             <div class="panel">
               <div class="panel-header">
                 <div class="panel-title">Configuration</div>
-                <div class="panel-description">Set controller behavior and supply additional files only when the selected core requires them.</div>
+                <div class="panel-description">Set controller behavior and supply additional files only when the
+                  selected core requires them.</div>
               </div>
               <div class="panel-body">
                 <div class="field">
@@ -157,7 +163,8 @@
                     <div class="controller-visual">
                       <div class="controller-art" id="controller-art" role="img" aria-label="Controller preview"></div>
                     </div>
-                    <div class="controller-note">Mappings are translated into the core configuration at build time.</div>
+                    <div class="controller-note">Mappings are translated into the core configuration at build time.
+                    </div>
                     <div class="mapping-status" id="mapping-status"></div>
                   </div>
                   <div class="mapping-list" id="mapping-right"></div>
@@ -171,160 +178,167 @@
                   </div>
                   <div class="panel-body">
                     <div id="core-options"></div>
-                    <div class="option-footer"><button type="button" class="button ghost" id="reset-options" hidden>Reset options to defaults</button></div>
-                  </div>
-                </div>
-
-                <div class="panel" style="margin-top:20px;background:#13191f">
-                  <div class="panel-header">
-                    <div class="panel-title">Core Requirements</div>
-                    <div class="panel-description">Donor-sourced cores require files you provide yourself. They are used during the build and are not downloaded by the tool.</div>
-                  </div>
-                  <div class="panel-body" id="donor-fields">
-                    <div class="empty-note">Select a donor-sourced core to show its required inputs.</div>
+                    <div class="option-footer"><button type="button" class="button ghost" id="reset-options"
+                        hidden>Reset options to defaults</button></div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <aside class="panel preview-card">
-              <div class="side-heading">Build Summary</div>
-              <div class="summary-row"><span class="summary-label">ROM</span><span class="summary-value" id="summary-rom">—</span></div>
-              <div class="summary-row"><span class="summary-label">Core</span><span class="summary-value" id="summary-core">—</span></div>
-              <div class="summary-row"><span class="summary-label">Title</span><span class="summary-value" id="summary-title">—</span></div>
-              <div class="summary-row"><span class="summary-label">Title ID</span><span class="summary-value" id="summary-id">—</span></div>
-              <div class="summary-row"><span class="summary-label">Controller</span><span class="summary-value" id="summary-controller">Classic Controller</span></div>
-              <div class="summary-row"><span class="summary-label">Options</span><span class="summary-value" id="summary-options">—</span></div>
-            </aside>
+            <div class="footer-nav"><button class="button previous-step">← Back</button>
+              <div class="right"><button class="button primary next-step">Continue →</button></div>
+            </div>
           </div>
-          <div class="footer-nav"><button class="button previous-step">← Back</button><div class="right"><button class="button primary next-step">Continue →</button></div></div>
-        </div>
 
-        <div id="step-preview" class="step-panel" hidden>
-          <div class="workspace-grid">
-            <div class="panel">
-              <div class="panel-header">
-                <div class="panel-title">Preview</div>
-                <div class="panel-description">See how the title and artwork will be presented in a Wii Menu-style context.</div>
-              </div>
-              <div class="panel-body" style="padding:26px">
-                <div class="device-preview" style="max-width:760px;margin:auto">
-                  <div class="device-screen">
-                    <div class="menu-header"><span>Wii Menu</span><span>Sat 6/10</span></div>
-                    <div class="channel-stage">
-                      <div class="channel-tile">
-                        <div class="channel-art placeholder" id="large-preview-art"></div>
-                        <div class="channel-title" id="large-preview-title">Untitled Channel</div>
+          <div id="step-preview" class="step-panel" hidden>
+            <div class="workspace-grid">
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-title">Preview</div>
+                  <div class="panel-description">See how the title and artwork will be presented in a Wii Menu-style
+                    context.</div>
+                </div>
+                <div class="panel-body" style="padding:26px">
+                  <div class="device-preview" style="max-width:760px;margin:auto">
+                    <div class="device-screen">
+                      <div class="menu-header"><span>Wii Menu</span><span>Sat 6/10</span></div>
+                      <div class="channel-stage">
+                        <div class="channel-tile">
+                          <div class="channel-art placeholder" id="large-preview-art"></div>
+                          <div class="channel-title" id="large-preview-title">Untitled Channel</div>
+                        </div>
                       </div>
                     </div>
+                    <div class="device-footer"><span>Wii</span><span>✉</span></div>
                   </div>
-                  <div class="device-footer"><span>Wii</span><span>✉</span></div>
                 </div>
               </div>
+
+              <aside class="panel preview-card">
+                <div class="side-heading">Channel Details</div>
+                <div class="summary-row"><span class="summary-label">Title</span><span class="summary-value"
+                    id="preview-title">—</span></div>
+                <div class="summary-row"><span class="summary-label">System</span><span class="summary-value"
+                    id="preview-system">—</span></div>
+                <div class="summary-row"><span class="summary-label">Core</span><span class="summary-value"
+                    id="preview-core">—</span></div>
+                <div class="summary-row"><span class="summary-label">Title ID</span><span class="summary-value"
+                    id="preview-id">—</span></div>
+                <div class="validation" style="margin-top:18px"><span>✓</span><span>Preview is based on the current
+                    build inputs.</span></div>
+              </aside>
             </div>
-
-            <aside class="panel preview-card">
-              <div class="side-heading">Channel Details</div>
-              <div class="summary-row"><span class="summary-label">Title</span><span class="summary-value" id="preview-title">—</span></div>
-              <div class="summary-row"><span class="summary-label">System</span><span class="summary-value" id="preview-system">—</span></div>
-              <div class="summary-row"><span class="summary-label">Core</span><span class="summary-value" id="preview-core">—</span></div>
-              <div class="summary-row"><span class="summary-label">Title ID</span><span class="summary-value" id="preview-id">—</span></div>
-              <div class="validation" style="margin-top:18px"><span>✓</span><span>Preview is based on the current build inputs.</span></div>
-            </aside>
+            <div class="footer-nav"><button class="button previous-step">← Back</button>
+              <div class="right"><button class="button primary next-step">Continue →</button></div>
+            </div>
           </div>
-          <div class="footer-nav"><button class="button previous-step">← Back</button><div class="right"><button class="button primary next-step">Continue →</button></div></div>
-        </div>
 
-        <div id="step-build" class="step-panel" hidden>
-          <div class="build-summary">
+          <div id="step-build" class="step-panel" hidden>
+            <div class="build-summary">
+              <div class="panel">
+                <div class="panel-header">
+                  <div class="panel-title">Build Summary</div>
+                  <div class="panel-description">Review the inputs before generating the WAD.</div>
+                </div>
+                <div class="panel-body">
+                  <div class="checklist">
+                    <div class="check-row"><span class="check-name">ROM File</span><span class="check-value"
+                        id="build-rom">— <span class="check">✓</span></span></div>
+                    <div class="check-row"><span class="check-name">Core</span><span class="check-value"
+                        id="build-core">— <span class="check">✓</span></span></div>
+                    <div class="check-row"><span class="check-name">Title</span><span class="check-value"
+                        id="build-title">— <span class="check">✓</span></span></div>
+                    <div class="check-row"><span class="check-name">Title ID</span><span class="check-value"
+                        id="build-id">— <span class="check">✓</span></span></div>
+                    <div class="check-row"><span class="check-name">Controller</span><span class="check-value"
+                        id="build-controller">— <span class="check">✓</span></span></div>
+                    <div class="check-row"><span class="check-name">Core Options</span><span class="check-value"
+                        id="build-options">— <span class="check">✓</span></span></div>
+                    <div class="check-row"><span class="check-name">Cover Art</span><span class="check-value"
+                        id="build-cover">—</span></div>
+                  </div>
+                  <details class="config-preview" id="config-preview-details">
+                    <summary>Core config file</summary>
+                    <div class="panel-description">The file the emulator core reads (embedded in the WAD for bundled
+                      cores).</div>
+                    <pre id="config-preview"></pre>
+                  </details>
+                  <div class="validation" id="build-status" style="margin-top:18px"><span>✓</span><span>All UI-level
+                      checks passed. Ready to build.</span></div>
+                </div>
+              </div>
+
+              <aside class="panel panel-body build-action">
+                <div>
+                  <div class="side-heading">Output</div>
+                  <div class="inline">
+                    <input id="output-path" placeholder="Path to output WAD">
+                    <button class="button" id="browse-output">Browse</button>
+                  </div>
+                  <div class="panel-description" style="margin-top:8px">The generated WAD is an output artifact; it is
+                    not added to an application library.</div>
+                </div>
+                <button class="button primary build-button" id="build-button">⚒ Build WAD</button>
+              </aside>
+            </div>
+            <div class="footer-nav"><button class="button previous-step">← Back</button>
+              <div class="right"><button class="button" id="reset-build-bottom">Build Another</button></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="view" id="view-ids">
+          <div class="title-id-layout">
             <div class="panel">
               <div class="panel-header">
-                <div class="panel-title">Build Summary</div>
-                <div class="panel-description">Review the inputs before generating the WAD.</div>
+                <div class="panel-title">Title ID Checker</div>
+                <div class="panel-description">Check whether a Title ID is already in use. This is the only build
+                  history/state this UI treats as persistent.</div>
               </div>
               <div class="panel-body">
-                <div class="checklist">
-                  <div class="check-row"><span class="check-name">ROM File</span><span class="check-value" id="build-rom">— <span class="check">✓</span></span></div>
-                  <div class="check-row"><span class="check-name">Core</span><span class="check-value" id="build-core">— <span class="check">✓</span></span></div>
-                  <div class="check-row"><span class="check-name">Title</span><span class="check-value" id="build-title">— <span class="check">✓</span></span></div>
-                  <div class="check-row"><span class="check-name">Title ID</span><span class="check-value" id="build-id">— <span class="check">✓</span></span></div>
-                  <div class="check-row"><span class="check-name">Controller</span><span class="check-value" id="build-controller">— <span class="check">✓</span></span></div>
-                  <div class="check-row"><span class="check-name">Core Options</span><span class="check-value" id="build-options">— <span class="check">✓</span></span></div>
-                  <div class="check-row"><span class="check-name">Cover Art</span><span class="check-value" id="build-cover">—</span></div>
+                <div class="field">
+                  <label for="standalone-id">Title ID</label>
+                  <div class="inline">
+                    <input id="standalone-id" placeholder="000100014E455341">
+                    <button class="button primary" id="standalone-check">Check</button>
+                  </div>
                 </div>
-                <details class="config-preview" id="config-preview-details">
-                  <summary>Core config file</summary>
-                  <div class="panel-description">The file the emulator core reads (embedded in the WAD for bundled cores).</div>
-                  <pre id="config-preview"></pre>
-                </details>
-                <div class="validation" id="build-status" style="margin-top:18px"><span>✓</span><span>All UI-level checks passed. Ready to build.</span></div>
-              </div>
-            </div>
-
-            <aside class="panel panel-body build-action">
-              <div>
-                <div class="side-heading">Output</div>
-                <div class="inline">
-                  <input id="output-path" placeholder="Path to output WAD">
-                  <button class="button" id="browse-output">Browse</button>
+                <div class="id-result available" id="id-result">
+                  <div class="id-state">✓ Available</div>
+                  <div class="id-detail">Enter a Title ID to check for conflicts.</div>
                 </div>
-                <div class="panel-description" style="margin-top:8px">The generated WAD is an output artifact; it is not added to an application library.</div>
-              </div>
-              <button class="button primary build-button" id="build-button">⚒ Build WAD</button>
-            </aside>
-          </div>
-          <div class="footer-nav"><button class="button previous-step">← Back</button><div class="right"><button class="button" id="reset-build-bottom">Build Another</button></div></div>
-        </div>
-      </section>
-
-      <section class="view" id="view-ids">
-        <div class="title-id-layout">
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title">Title ID Checker</div>
-              <div class="panel-description">Check whether a Title ID is already in use. This is the only build history/state this UI treats as persistent.</div>
-            </div>
-            <div class="panel-body">
-              <div class="field">
-                <label for="standalone-id">Title ID</label>
-                <div class="inline">
-                  <input id="standalone-id" placeholder="000100014E455341">
-                  <button class="button primary" id="standalone-check">Check</button>
-                </div>
-              </div>
-              <div class="id-result available" id="id-result">
-                <div class="id-state">✓ Available</div>
-                <div class="id-detail">Enter a Title ID to check for conflicts.</div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="view" id="view-settings">
-        <div class="title-id-layout">
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title">Settings</div>
-              <div class="panel-description">Application-level preferences. Build outputs are never treated as a managed library.</div>
-            </div>
-            <div class="panel-body">
-              <div class="field">
-                <label for="registry-path">Core Registry Path</label>
-                <div class="inline">
-                  <input id="registry-path" value="cores/registry.json">
-                  <button class="button" id="browse-registry">Browse</button>
-                </div>
+        <section class="view" id="view-settings">
+          <div class="title-id-layout">
+            <div class="panel">
+              <div class="panel-header">
+                <div class="panel-title">Settings</div>
+                <div class="panel-description">Application-level preferences. Build outputs are never treated as a
+                  managed library.</div>
               </div>
-              <div class="validation" style="margin-top:18px"><span>i</span><span>Registry, ROM, cover art, donor WAD, key, and output paths are all resolved via native file dialogs or native drag-and-drop -- nothing here is uploaded anywhere.</span></div>
+              <div class="panel-body">
+                <div class="field">
+                  <label for="registry-path">Core Registry Path</label>
+                  <div class="inline">
+                    <input id="registry-path" value="cores/registry.json">
+                    <button class="button" id="browse-registry">Browse</button>
+                  </div>
+                </div>
+                <div class="validation" style="margin-top:18px"><span>i</span><span>Registry, ROM, cover art, donor WAD,
+                    key, and output paths are all resolved via native file dialogs or native drag-and-drop -- nothing
+                    here is uploaded anywhere.</span></div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
-  </main>
-</div>
+        </section>
+      </div>
+    </main>
+  </div>
 
-<script type="module" src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
+
 </html>
